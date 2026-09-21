@@ -14,22 +14,41 @@ jobs:
     # Pinned rather than ubuntu-latest: a runner image bump (system fonts, antialiasing,
     # rasterizer) shifts screenshot pixels on its own, with no code change to explain it.
     runs-on: ubuntu-24.04
+    env:
+      CHROMATIC_STORYBOOK_PROJECT_TOKEN: ${{ secrets.CHROMATIC_STORYBOOK_PROJECT_TOKEN }}
     steps:
+      # The secrets context cannot be read by a job-level `if`, so the token is checked here and
+      # every later step keys off the result: until the repository has a Chromatic project, the
+      # run is a notice rather than a red check.
+      - name: Check for the Chromatic project token
+        id: token
+        run: |
+          if [ -z "$CHROMATIC_STORYBOOK_PROJECT_TOKEN" ]; then
+            echo "::notice::CHROMATIC_STORYBOOK_PROJECT_TOKEN is not set for this repository; skipping Chromatic."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout
+        if: steps.token.outputs.present == 'true'
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Node
+        if: steps.token.outputs.present == 'true'
         uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
+        if: steps.token.outputs.present == 'true'
         run: npm ci
 
       - name: Run Chromatic
+        if: steps.token.outputs.present == 'true'
         uses: chromaui/action@v18.8.0
         env:
           CHROMATIC_STATIC_VERSION: "true"
