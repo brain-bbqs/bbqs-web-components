@@ -1,0 +1,30 @@
+{
+  "name": "@brain-bbqs/utils",
+  "version": "0.0.0",
+  "description": "Framework-free helpers shared by the BBQS companion web apps: display formatting, a bounded async queue, path sanitization, cooperative interruption, and safe localStorage stores.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brain-bbqs/brain-bbqs-web-components.git",
+    "directory": "packages/utils"
+  },
+  "homepage": "https://github.com/brain-bbqs/brain-bbqs-web-components/tree/main/packages/utils#readme",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

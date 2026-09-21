@@ -1,0 +1,53 @@
+{
+  "name": "@brain-bbqs/test-utils",
+  "version": "0.0.0",
+  "description": "Test helpers shared by the BBQS companion web apps: Playwright viewport and layout checks, sign-in and archive stubs, the Chromatic per-viewport pattern, and Vitest fixtures for index.html, fetch and storage.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brain-bbqs/brain-bbqs-web-components.git",
+    "directory": "packages/test-utils"
+  },
+  "homepage": "https://github.com/brain-bbqs/brain-bbqs-web-components/tree/main/packages/test-utils#readme",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    "./playwright": {
+      "types": "./dist/playwright/index.d.ts",
+      "default": "./dist/playwright/index.js"
+    },
+    "./vitest": {
+      "types": "./dist/vitest/index.d.ts",
+      "default": "./dist/vitest/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "playwright test --config playwright.config.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@brain-bbqs/ember-client": "^0.0.0"
+  },
+  "peerDependencies": {
+    "@playwright/test": "^1.48.0",
+    "vitest": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@playwright/test": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@brain-bbqs/config": "^0.0.0"
+  }
+}

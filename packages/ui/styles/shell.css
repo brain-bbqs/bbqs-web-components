@@ -1,0 +1,393 @@
+/* The page shell: header grid, BBQS watermark, theme toggle, account menu, footer bar and brand
+   marks. Selects on classes only; the apps own their element ids. */
+
+/* Equal 1fr side columns keep the title truly centered on the page, with the logo and the header
+   actions flanking it symmetrically. */
+.site-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  text-align: center;
+}
+
+.brand-logo {
+  justify-self: start;
+  height: 3rem;
+  width: 3rem;
+}
+
+/* A non-square logo renders at its natural aspect ratio. */
+.header-logo {
+  justify-self: start;
+  height: 3rem;
+  width: auto;
+}
+
+/* The middle column of the header grid, capped so a long subtitle wraps instead of squeezing the
+   logo and the header actions flanking it. */
+.site-title {
+  min-width: 0;
+  max-width: 32rem;
+  text-align: center;
+}
+
+.site-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-self: end;
+}
+
+/* On a phone the three columns cannot hold the logo, a wrapping title block and the sign-in button
+   side by side, so the title block drops to a full-width second row under the other two. */
+@media (max-width: 640px) {
+  .site-header {
+    grid-template-columns: auto 1fr;
+  }
+  .brand-logo,
+  .header-logo {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .header-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .site-title,
+  .site-header > h1 {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: none;
+  }
+}
+
+/* A fixed corner watermark, diametrically opposed to the brand marks in the bottom-right corner. */
+.brand-watermark-link {
+  position: fixed;
+  top: 0.15rem;
+  left: 0.35rem;
+  z-index: 1;
+  line-height: 0;
+}
+
+/* The BBQS org logo is a square sitting on its own white field, so the circular crop is what keeps
+   it reading as a mark rather than a pasted-on tile. */
+.brand-watermark-logo {
+  display: block;
+  height: 5rem;
+  width: 5rem;
+  object-fit: cover;
+  border-radius: 50%;
+  opacity: 0.484;
+}
+
+/* Theme toggle: an outlined circle the size of the logo, so the header circles line up. Spelled
+   out in full rather than inheriting from a base `button` rule, so it looks the same in an app
+   without one. */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+/* The moon (switch to dark) shows in light mode, the sun (switch to light) in dark mode, keyed
+   off the same data-theme/OS-preference combination that selects the theme variables. */
+.theme-toggle-sun {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle-sun {
+    display: block;
+  }
+  :root:not([data-theme="light"]) .theme-toggle-moon {
+    display: none;
+  }
+}
+:root[data-theme="dark"] .theme-toggle-sun {
+  display: block;
+}
+:root[data-theme="dark"] .theme-toggle-moon {
+  display: none;
+}
+
+/* EMBER sign-in: the red sign-in button is swapped for an avatar whose hover/focus popover holds
+   the username and the sign-out action. */
+.oauth-signin-btn {
+  background: var(--ember-red);
+  border-color: var(--ember-red);
+  color: #fff;
+}
+.oauth-signin-btn:hover:not(:disabled) {
+  background: var(--ember-red-hover);
+  border-color: var(--ember-red-hover);
+  filter: none;
+}
+.oauth-signin-btn:focus-visible {
+  outline-color: var(--ember-red);
+}
+/* Set on <html> by the pre-paint script when stored OAuth tokens exist, so a refresh while already
+   signed in doesn't flash the sign-in button before the app's renderAuthState() determines the
+   real state and clears the attribute. Both rules toggle together so the avatar's spot in the
+   right-aligned header row is reserved from the first frame, instead of popping in and shifting
+   the theme toggle sideways. */
+:root[data-signed-in="1"] .oauth-signin-btn {
+  display: none;
+}
+:root[data-signed-in="1"] .oauth-signed-in[hidden] {
+  display: inline-flex !important;
+}
+.oauth-signed-in {
+  position: relative;
+  display: inline-flex;
+}
+.oauth-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--ember-red);
+  color: var(--ember-red);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  cursor: default;
+}
+/* Revealed on hover/focus, mirroring the main archive's own avatar-menu behavior. */
+.oauth-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px var(--shadow);
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.7rem;
+  min-width: 220px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease,
+    visibility 0.12s;
+  z-index: 20;
+}
+.oauth-signed-in:hover .oauth-popover,
+.oauth-signed-in:focus-within .oauth-popover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.oauth-popover-greeting {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+.oauth-popover-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+.oauth-popover-signout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.oauth-popover-signout:hover:not(:disabled) {
+  background: none;
+  color: var(--ember-red);
+}
+.oauth-popover-signout-icon {
+  flex-shrink: 0;
+}
+
+/* Fixed bottom bar: links and the version stamp bottom-left, brand marks bottom-right. */
+.page-footer-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 0.5rem 0.15rem 0.5rem;
+  /* The bar spans the full viewport width but is mostly empty middle; without this, that empty
+     stretch swallows clicks aimed at page content behind it. Pointer events are re-enabled on the
+     bar's real contents below. */
+  pointer-events: none;
+}
+.page-footer-bar > * {
+  pointer-events: auto;
+}
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+.footer-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.footer-text-link {
+  color: var(--accent);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+/* Muted rather than accent-colored: the version is a provenance marker for bug reports, not a
+   call to action like the links above it. */
+.version-link {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+/* Separates the version stamp from a control beside it. */
+.footer-dot {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+/* A button that reads as one of the footer's links rather than as a control: what it does is rare
+   and not what anyone came to the page for. */
+.footer-button-link {
+  font: inherit;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--accent);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.footer-button-link:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+/* Supporting-institution marks. Bottom-aligned so a name set under a wordless mark lands on the
+   same line as a wordmark baked into the bottom of the logo beside it. Fading the whole link
+   rather than just the image keeps that name at the same weight as the baked-in one. */
+.footer-brands {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.9rem;
+}
+.footer-brand-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  opacity: 0.312;
+  text-decoration: none;
+}
+.footer-brand-logo {
+  display: block;
+  height: 4rem;
+  width: auto;
+}
+/* Mark plus name, stacked, sized so the pair totals the height of the plain marks beside it. */
+.footer-brand-link.captioned .footer-brand-logo {
+  height: 2.75rem;
+}
+.footer-brand-name {
+  color: var(--text);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+/* A mark drawn with a near-black outline in its default form and a white one in the variant for
+   dark backgrounds: each theme loads the variant it can actually see. Keyed like the theme
+   toggle's two glyphs above. */
+.footer-brand-logo.on-dark {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .footer-brand-logo.on-light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .footer-brand-logo.on-dark {
+    display: block;
+  }
+}
+:root[data-theme="dark"] .footer-brand-logo.on-light {
+  display: none;
+}
+:root[data-theme="dark"] .footer-brand-logo.on-dark {
+  display: block;
+}
+
+/* Below the width where the page column no longer clears the fixed footer's left stack (~270px,
+   measured on the built apps), the watermark and the bar leave fixed positioning and sit in the
+   document flow instead of pinned over content as it scrolls. The watermark goes entirely, since
+   the header already shows the same logo. 1400px leaves slack past the measured 1368px for footer
+   text drifting with future version strings. */
+@media (max-width: 1400px) {
+  .brand-watermark-link {
+    display: none;
+  }
+  main {
+    padding-bottom: 2rem;
+  }
+  .page-footer-bar {
+    position: static;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1rem 1.5rem;
+  }
+  .footer-left {
+    align-items: center;
+  }
+}
