@@ -1,0 +1,18 @@
+name: Release
+
+# Shell of the release workflow; the monorepo pull request fills it in. Deliberately publishes
+# nothing.
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "the Changesets release is added by the monorepo pull request"

@@ -1,0 +1,31 @@
+name: CI
+
+# Shell of the CI workflow, so the checks exist on main (and can be made required) before the
+# monorepo pull request fills them in. Each job succeeds without doing anything yet.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "quality checks are added by the monorepo pull request"
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "integration tests are added by the monorepo pull request"
+
+  storybook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "the Storybook build is added by the monorepo pull request"

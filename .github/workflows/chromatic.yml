@@ -1,0 +1,15 @@
+name: Chromatic (Storybook)
+
+# Shell of the Chromatic workflow; the monorepo pull request fills it in.
+on: push
+
+permissions:
+  contents: read
+
+jobs:
+  chromatic:
+    name: Run Chromatic (Storybook)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Chromatic is added by the monorepo pull request"
