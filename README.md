@@ -25,11 +25,18 @@ packages/
   ember-client/  depends on utils
   ui/            depends on utils; ships styles/ and html/ reference fragments; has a Storybook
   test-utils/    depends on ember-client; two entry points, ./playwright and ./vitest
-tooling/aliases.ts   Vite aliases pointing @brain-bbqs/* at sibling source, for tests and Storybook
-tsconfig.base.json   the published base tsconfig plus monorepo-only `paths` to sibling source
-tsconfig.build.json  project references that build every dist/ in dependency order
-.changeset/          pending version bumps (see below)
+configs/
+  aliases.ts           Vite aliases pointing @brain-bbqs/* at sibling source, for tests and Storybook
+  tsconfig.base.json   the published base tsconfig plus monorepo-only `paths` to sibling source
+  tsconfig.json        project references that typecheck every package
+  tsconfig.build.json  project references that build every dist/ in dependency order
+  eslint.config.js, prettier.config.js, vitest.config.ts   the root runs of each tool
+.changeset/            pending version bumps (see below)
 ```
+
+The root configs live under `configs/`, as in the apps, and the npm scripts pass them with
+`--config`. Editor extensions need pointing at them (`eslint.options.overrideConfigFile` and
+`prettier.configPath` in VS Code); the per-package `tsconfig.json` files are found on their own.
 
 Inside the repo, packages import each other by name and resolve to source (through `paths` and the
 Vite aliases), so nothing needs building to typecheck, lint or test. `npm run build` emits each

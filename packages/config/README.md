@@ -22,18 +22,19 @@ npm install --save-dev @brain-bbqs/config
 
 ## Usage
 
-`eslint.config.js` (rename from `.cjs`; ESLint 9 loads ESM flat configs directly):
+`configs/eslint.config.js` (rename from `.cjs`; ESLint 9 loads ESM flat configs directly):
 
 ```js
+import path from "node:path";
 import { createEslintConfig } from "@brain-bbqs/config/eslint";
 
 export default createEslintConfig({
-  tsconfigRootDir: import.meta.dirname,
+  tsconfigRootDir: path.resolve(import.meta.dirname, ".."), // where the app's tsconfig.json lives
   complexity: 15, // bbqs-uploader; the other apps take the default 20
 });
 ```
 
-`prettier.config.js`:
+`configs/prettier.config.js`:
 
 ```js
 import config from "@brain-bbqs/config/prettier";

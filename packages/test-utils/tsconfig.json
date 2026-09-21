@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../configs/tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
     "noEmit": false,
@@ -9,7 +9,7 @@
     "types": ["node", "vite/client"],
     "rootDir": "../.."
   },
-  "include": ["src", "tests", "vitest.config.ts", "playwright.config.ts", "../../tooling/aliases.ts"],
+  "include": ["src", "tests", "vitest.config.ts", "playwright.config.ts", "../../configs/aliases.ts"],
   "references": [
     {
       "path": "../utils"

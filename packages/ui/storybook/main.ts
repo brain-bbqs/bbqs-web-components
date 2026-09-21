@@ -1,5 +1,5 @@
 import { createStorybookMain } from "@brain-bbqs/config/storybook";
-import { workspaceAliases } from "../../../tooling/aliases.js";
+import { workspaceAliases } from "../../../configs/aliases.js";
 
 export default createStorybookMain({
   packageJson: new URL("../package.json", import.meta.url),

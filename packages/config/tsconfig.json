@@ -1,7 +1,7 @@
 {
   // The package itself is plain JavaScript with JSDoc types (so the apps' eslint/prettier configs
   // can load it with no build step); checkJs typechecks it against the hand-written .d.ts files.
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../configs/tsconfig.base.json",
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,

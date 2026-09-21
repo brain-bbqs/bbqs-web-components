@@ -21,6 +21,7 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
+        args: [--config, configs/prettier.config.js]
         additional_dependencies:
           - prettier@3.9.5
 
@@ -31,7 +32,7 @@ repos:
         # Runs the repo's own eslint (the exact package set and config `npm run lint`
         # uses), not an isolated hook environment: type-aware rules need the real
         # node_modules for type information. Requires `npm ci` first.
-        entry: npx --no -- eslint --fix
+        entry: npx --no -- eslint --fix --config configs/eslint.config.js
         language: system
         types: [file]
         files: \.(js|cjs|mjs|ts|tsx)$

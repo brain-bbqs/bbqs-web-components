@@ -1,5 +1,5 @@
 import { createVitestConfig } from "@brain-bbqs/config/vitest";
-import { workspaceAliases } from "../../tooling/aliases.js";
+import { workspaceAliases } from "../../configs/aliases.js";
 
 export default createVitestConfig({
   rootDir: new URL(".", import.meta.url),

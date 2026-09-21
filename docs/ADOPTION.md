@@ -13,18 +13,18 @@ npm install --save-dev @brain-bbqs/config @brain-bbqs/test-utils
 
 ## Tooling (all three apps)
 
-| Delete                                                  | Replace with                                                                                        |
-| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `configs/eslint.config.cjs`                             | `eslint.config.js` calling `createEslintConfig` (bbqs-uploader: `complexity: 15`)                   |
-| `configs/prettier.config.cjs`                           | `prettier.config.js` re-exporting `@brain-bbqs/config/prettier` (clip-extractor: `printWidth: 140`) |
-| `configs/tsconfig.json`'s `compilerOptions`             | `"extends": "@brain-bbqs/config/tsconfig.base.json"`                                                |
-| `configs/vite.config.ts` boilerplate                    | `createViteConfig({ rootDir, overrides })`; app-specific aliases/externals/chunks go in `overrides` |
-| `configs/vitest.config.ts`                              | `createVitestConfig({ rootDir, thresholds, coverageExclude })`                                      |
-| `configs/playwright.shared.ts` + both configs           | `createPlaywrightConfig({ rootDir, testDir })` (encoding-helper keeps `globalSetup`)                |
-| `configs/storybook/main.ts`, `preview.ts`               | `createStorybookMain(...)`, `storybookPreview` (clip-extractor keeps its `staticDirs`)              |
-| `configs/appVersion.ts`                                 | `resolveAppVersion(new URL("../package.json", import.meta.url))`                                    |
-| the inline `<script>` at the top of `index.html`        | `prePaintPlugin({ themeKey, settingsKey })` in the Vite config                                      |
-| `.pre-commit-config.yaml`'s `--config configs/...` args | drop the args; the root `eslint.config.js`/`prettier.config.js` are found on their own              |
+| Delete                                                  | Replace with                                                                                                |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `configs/eslint.config.cjs`                             | `configs/eslint.config.js` calling `createEslintConfig` (bbqs-uploader: `complexity: 15`)                   |
+| `configs/prettier.config.cjs`                           | `configs/prettier.config.js` re-exporting `@brain-bbqs/config/prettier` (clip-extractor: `printWidth: 140`) |
+| `configs/tsconfig.json`'s `compilerOptions`             | `"extends": "@brain-bbqs/config/tsconfig.base.json"`                                                        |
+| `configs/vite.config.ts` boilerplate                    | `createViteConfig({ rootDir, overrides })`; app-specific aliases/externals/chunks go in `overrides`         |
+| `configs/vitest.config.ts`                              | `createVitestConfig({ rootDir, thresholds, coverageExclude })`                                              |
+| `configs/playwright.shared.ts` + both configs           | `createPlaywrightConfig({ rootDir, testDir })` (encoding-helper keeps `globalSetup`)                        |
+| `configs/storybook/main.ts`, `preview.ts`               | `createStorybookMain(...)`, `storybookPreview` (clip-extractor keeps its `staticDirs`)                      |
+| `configs/appVersion.ts`                                 | `resolveAppVersion(new URL("../package.json", import.meta.url))`                                            |
+| the inline `<script>` at the top of `index.html`        | `prePaintPlugin({ themeKey, settingsKey })` in the Vite config                                              |
+| `.pre-commit-config.yaml`'s `--config configs/...` args | keep them, pointing at the `.js` files                                                                      |
 
 Both `configs/.codespellrc` and `.github/workflows/*` stay in the apps: they are per-repository
 (deploy targets, Chromatic tokens, custom words). The lint/test workflow steps themselves need no
