@@ -1,0 +1,30 @@
+<!-- EMBER sign-in button and the signed-in avatar with its popover. Same markup buildAccountMenu()
+     produces. The `oauth-signin-btn` / `oauth-signed-in` classes are what the shared stylesheet
+     and the pre-paint stand-in key on; the ids are the app's. -->
+<button type="button" id="oauthSigninBtn" class="primary oauth-signin-btn">Sign in with EMBER</button>
+<div id="oauthSignedIn" class="oauth-signed-in" hidden>
+  <span id="oauthAvatar" class="oauth-avatar" tabindex="0" aria-label="Account menu"></span>
+  <div class="oauth-popover" role="menu">
+    <p class="oauth-popover-greeting">You are logged in as <strong id="oauthUsername"></strong>.</p>
+    <hr class="oauth-popover-divider" />
+    <button type="button" id="oauthSignoutBtn" class="oauth-popover-signout" role="menuitem">
+      <span>Sign out</span>
+      <svg
+        class="oauth-popover-signout-icon"
+        viewBox="0 0 24 24"
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+      </svg>
+    </button>
+  </div>
+</div>

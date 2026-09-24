@@ -1,7 +1,5 @@
 name: CI
 
-# Shell of the CI workflow, so the checks exist on main (and can be made required) before the
-# monorepo pull request fills them in. Each job succeeds without doing anything yet.
 on:
   pull_request:
   push:
@@ -12,20 +10,106 @@ permissions:
   contents: read
 
 jobs:
+  # Deterministic quality gates, ordered fastest-fail-first, over every workspace at once.
   quality:
     runs-on: ubuntu-latest
     steps:
-      - name: Placeholder
-        run: echo "quality checks are added by the monorepo pull request"
+      - name: Checkout
+        uses: actions/checkout@v7
 
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      # Per package rather than one root run, so each package's own coverage floor is enforced.
+      - name: Unit tests with coverage
+        run: npm run test:coverage
+
+      # Proves every package emits the dist/ it publishes, with declarations.
+      - name: Build packages
+        run: npm run build
+
+      # Dependabot pull_request runs get no repository secrets, so CODECOV_TOKEN is empty and the
+      # upload would fail every dependency-bump PR; skip it for that actor instead of failing.
+      - name: Upload coverage to Codecov
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./packages/*/coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+  # The Playwright helpers in @brain-bbqs/test-utils are exercised in a real browser, apart from the
+  # quality job so a slow browser run never blocks the fast gates.
   integration:
     runs-on: ubuntu-latest
     steps:
-      - name: Placeholder
-        run: echo "integration tests are added by the monorepo pull request"
+      - name: Checkout
+        uses: actions/checkout@v7
 
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright OS dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Integration tests
+        run: npm run test:integration
+
+  # The shared UI shell's stories build cleanly; Chromatic snapshots of them are wired in
+  # chromatic.yml so the token stays out of this workflow.
   storybook:
     runs-on: ubuntu-latest
     steps:
-      - name: Placeholder
-        run: echo "the Storybook build is added by the monorepo pull request"
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Storybook
+        run: npm run build-storybook
+        env:
+          CHROMATIC_STATIC_VERSION: "true"

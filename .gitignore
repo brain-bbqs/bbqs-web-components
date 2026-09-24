@@ -1,0 +1,25 @@
+node_modules/
+dist/
+coverage/
+storybook-static/
+test-results/
+playwright-report/
+*.tsbuildinfo
+*.log
+
+# Device-specific hidden files (OS-generated, not project config)
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Python cache (e.g. from pre-commit hook environments)
+__pycache__/
+*.pyc
+*.pyo

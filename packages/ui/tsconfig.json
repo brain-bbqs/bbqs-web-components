@@ -1,0 +1,18 @@
+{
+  "extends": "../../configs/tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "outDir": "../../node_modules/.tsbuild/ui",
+    "types": ["node", "vite/client"],
+    "rootDir": "../.."
+  },
+  "include": ["src", "tests", "stories", "storybook", "vitest.config.ts", "../../configs/aliases.ts"],
+  "references": [
+    {
+      "path": "../utils"
+    }
+  ]
+}

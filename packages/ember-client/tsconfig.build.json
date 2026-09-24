@@ -1,0 +1,19 @@
+{
+  // What `npm run build` publishes: src/ only, as ESM plus declarations under dist/. A composite
+  // project so `tsc -b` builds the packages this one imports first and types those imports from
+  // their dist/ declarations, the way a consumer installed from npm will see them.
+  "extends": "../../configs/tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "../../node_modules/.tsbuild/ember-client.build.tsbuildinfo",
+    "types": []
+  },
+  "include": ["src"],
+  "references": [{ "path": "../utils/tsconfig.build.json" }]
+}

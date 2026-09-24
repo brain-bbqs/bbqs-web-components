@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "quarterly"
+    reviewers:
+      - "CodyCBakerPhD"
+    assignees:
+      - "CodyCBakerPhD"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "quarterly"
+    reviewers:
+      - "CodyCBakerPhD"
+    assignees:
+      - "CodyCBakerPhD"
+    groups:
+      # One PR per toolchain rather than one per package: the apps pin these together too.
+      test-toolchain:
+        patterns: ["vitest", "@vitest/*", "@playwright/test", "jsdom", "storybook", "@storybook/*"]
+      lint-toolchain:
+        patterns: ["eslint", "@eslint/*", "typescript-eslint", "prettier", "typescript"]
