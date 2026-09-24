@@ -39,7 +39,7 @@
     "@brain-bbqs/utils": "^0.1.0"
   },
   "devDependencies": {
-    "@brain-bbqs/config": "^0.1.0",
+    "@brain-bbqs/config": "^0.2.0",
     "@storybook/html-vite": "^10.5.3",
     "storybook": "^10.5.3"
   }
