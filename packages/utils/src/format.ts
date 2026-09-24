@@ -11,6 +11,11 @@ export interface FormatBytesOptions {
   placeholder?: string;
   /** Largest unit index the ladder climbs to (default 4, TB). */
   maxUnitIndex?: number;
+  /**
+   * Print a count under 1 KB exactly as given (`512.37 B`) instead of rounding it with
+   * `decimals(0, ...)`. clip-extractor's and encoding-helper's formatters always did.
+   */
+  exactBytes?: boolean;
 }
 
 /**
@@ -24,6 +29,7 @@ export function formatBytes(n: number | null | undefined, options: FormatBytesOp
     decimals = (i) => (i === 0 ? 0 : i === 1 ? 1 : 2),
     placeholder = "—",
     maxUnitIndex = UNITS.length - 1,
+    exactBytes = false,
   } = options;
   if (n == null) return placeholder;
   let value = n;
@@ -32,17 +38,26 @@ export function formatBytes(n: number | null | undefined, options: FormatBytesOp
     value /= 1024;
     i++;
   }
+  if (i === 0 && exactBytes) return `${value} B`;
   return `${value.toFixed(decimals(i, value))} ${UNITS[i]}`;
+}
+
+// clip-extractor's and encoding-helper's formatters were threshold chains in which NaN fails every
+// `n < limit` test and lands in the top unit; the ladder above would leave it in bytes.
+function topUnitForNaN(maxUnitIndex: number): string {
+  return `NaN ${UNITS[maxUnitIndex]}`;
 }
 
 /** clip-extractor's convention: `bytes(360464443754)` is "335.71 GB". */
 export function bytes(n: number | null | undefined): string {
-  return formatBytes(n);
+  if (Number.isNaN(n)) return topUnitForNaN(UNITS.length - 1);
+  return formatBytes(n, { exactBytes: true });
 }
 
 /** encoding-helper's convention: one decimal through MB, two of GB, no TB, an en dash for nothing. */
 export function fmtBytes(n: number | null | undefined): string {
-  return formatBytes(n, { decimals: (i) => (i === 0 ? 0 : i === 3 ? 2 : 1), placeholder: "–", maxUnitIndex: 3 });
+  if (Number.isNaN(n)) return topUnitForNaN(3);
+  return formatBytes(n, { decimals: (i) => (i === 3 ? 2 : 1), placeholder: "–", maxUnitIndex: 3, exactBytes: true });
 }
 
 /** bbqs-uploader's convention: one decimal below 10, none above, so a column of sizes stays narrow. */

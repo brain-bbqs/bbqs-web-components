@@ -142,7 +142,7 @@ describe("createPlaywrightConfig", () => {
     expect(config.testDir).toBe("../tests/integration");
     expect(config.use?.baseURL).toBe("http://localhost:4173");
     const server = config.webServer as { command: string; cwd: string; url: string };
-    expect(server.command).toBe("npm run build && npm run preview -- --port 4173");
+    expect(server.command).toBe("npm run build && npm run preview -- --port 4173 --strictPort");
     expect(server.cwd).toBe("/app");
     expect(config.projects?.map((p) => p.name)).toEqual(["chromium"]);
   });

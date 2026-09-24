@@ -12,10 +12,17 @@ export function readIndexHtml(rootDir: string = process.cwd(), file = "index.htm
   return readFileSync(resolve(rootDir, file), "utf8");
 }
 
-/** The contents of a document's `<body>`, which is the skeleton the lookups are written against;
- * or the whole string when it carries no body element. */
-export function bodyOf(html: string): string {
-  return /<body[^>]*>([\s\S]*)<\/body>/.exec(html)?.[1] ?? html;
+/**
+ * The contents of a document's `<body>`, which is the skeleton the lookups are written against;
+ * or the whole string when it carries no body element. With `stripScripts` (needs a DOM, so a
+ * jsdom suite), the markup is parsed with DOMParser, which never runs scripts, and every
+ * `<script>` is removed: what a harness wants when it imports the app's entry module itself.
+ */
+export function bodyOf(html: string, options: { stripScripts?: boolean } = {}): string {
+  if (!options.stripScripts) return /<body[^>]*>([\s\S]*)<\/body>/.exec(html)?.[1] ?? html;
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  for (const script of Array.from(doc.querySelectorAll("script"))) script.remove();
+  return doc.body.innerHTML;
 }
 
 /**

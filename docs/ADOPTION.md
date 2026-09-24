@@ -44,6 +44,10 @@ What the table does not show, learned adopting it in all three apps and the web-
   gets module workers; ffmpeg.wasm starts its worker as a module either way), the jsdom test
   environment (pass `environment: "node"` if that was the app's), the `json` coverage reporter, and
   the shared Storybook preview (light theme pinned, Storybook's backgrounds off).
+- **Theme and flag stores keep the app's warning.** `createChoiceStore(key, values, onError)` and
+  `createFlagStore(key, onError)` pass a failed write to `onError`, so an app whose tests assert its
+  own "Could not save ..." wording keeps it.
+- **A harness that strips scripts** uses `bodyOf(html, { stripScripts: true })` in a jsdom suite.
 - **Nothing rendered changes.** Coverage, the integration and Chromatic specs and the Storybook build
   should all come out the same as on `main`; a difference is a missed option, not an expected cost.
 
