@@ -49,7 +49,7 @@ jobs:
 
       - name: Run Chromatic
         if: steps.token.outputs.present == 'true'
-        uses: chromaui/action@v18.8.0
+        uses: chromaui/action@v18.9.4
         env:
           CHROMATIC_STATIC_VERSION: "true"
         with:
