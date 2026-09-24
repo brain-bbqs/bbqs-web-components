@@ -1,6 +1,6 @@
 {
   "name": "@brain-bbqs/ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The shared page shell of the BBQS companion web apps: theme tokens and toggle, header account menu, brand watermarks and footer, human-subjects gate, dropzone, and typed element lookups. Plain DOM, no framework.",
   "license": "MIT",
   "type": "module",
@@ -36,10 +36,10 @@
     "build-storybook": "storybook build --config-dir storybook"
   },
   "dependencies": {
-    "@brain-bbqs/utils": "^0.1.0"
+    "@brain-bbqs/utils": "^0.2.0"
   },
   "devDependencies": {
-    "@brain-bbqs/config": "^0.2.0",
+    "@brain-bbqs/config": "^0.2.1",
     "@storybook/html-vite": "^10.5.3",
     "storybook": "^10.5.3"
   }

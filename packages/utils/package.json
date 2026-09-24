@@ -1,6 +1,6 @@
 {
   "name": "@brain-bbqs/utils",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Framework-free helpers shared by the BBQS companion web apps: display formatting, a bounded async queue, path sanitization, cooperative interruption, and safe localStorage stores.",
   "license": "MIT",
   "type": "module",
