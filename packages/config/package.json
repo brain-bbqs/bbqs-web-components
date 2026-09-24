@@ -1,6 +1,6 @@
 {
   "name": "@brain-bbqs/config",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Shared ESLint, Prettier, TypeScript, Vite, Vitest, Playwright and Storybook configuration for the BBQS companion web apps.",
   "license": "MIT",
   "type": "module",

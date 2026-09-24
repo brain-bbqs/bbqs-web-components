@@ -1,6 +1,6 @@
 {
   "name": "@brain-bbqs/test-utils",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Test helpers shared by the BBQS companion web apps: Playwright viewport and layout checks, sign-in and archive stubs, the Chromatic per-viewport pattern, and Vitest fixtures for index.html, fetch and storage.",
   "license": "MIT",
   "type": "module",
@@ -33,7 +33,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@brain-bbqs/ember-client": "^0.0.0"
+    "@brain-bbqs/ember-client": "^0.1.0"
   },
   "peerDependencies": {
     "@playwright/test": "^1.48.0",
@@ -48,6 +48,6 @@
     }
   },
   "devDependencies": {
-    "@brain-bbqs/config": "^0.0.0"
+    "@brain-bbqs/config": "^0.1.0"
   }
 }
