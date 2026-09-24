@@ -7,10 +7,10 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brain-bbqs/brain-bbqs-web-components.git",
+    "url": "git+https://github.com/brain-bbqs/bbqs-web-components.git",
     "directory": "packages/utils"
   },
-  "homepage": "https://github.com/brain-bbqs/brain-bbqs-web-components/tree/main/packages/utils#readme",
+  "homepage": "https://github.com/brain-bbqs/bbqs-web-components/tree/main/packages/utils#readme",
   "files": [
     "dist",
     "README.md"

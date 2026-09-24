@@ -31,8 +31,8 @@
    app without that app's own CI seeing it.
 
 3. **Local development against an unreleased change.** From an app checkout,
-   `npm link ../brain-bbqs-web-components/packages/ui` after `npm run build` there, or a
-   `"@brain-bbqs/ui": "file:../brain-bbqs-web-components/packages/ui"` override while iterating.
+   `npm link ../bbqs-web-components/packages/ui` after `npm run build` there, or a
+   `"@brain-bbqs/ui": "file:../bbqs-web-components/packages/ui"` override while iterating.
    For a preview build that others can install, `npx changeset pre enter next` on a branch publishes
    `0.2.0-next.0` style versions without touching the stable line.
 
@@ -65,11 +65,11 @@
 
 ## Alternatives considered
 
-| Pattern                                                               | Why not                                                                                                                                                        |
-| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Git submodule of this repo in each app                                | Pins a commit rather than a version, no changelog, breaks `npm ci` caching, and Vite would compile the shared TypeScript with each app's settings              |
-| `"@brain-bbqs/ui": "github:brain-bbqs/brain-bbqs-web-components#..."` | npm cannot install a subdirectory of a git repo, so this would need one repo per package; loses Dependabot version ranges and provenance                       |
-| Copy-and-diff (the status quo)                                        | The three copies had already drifted in a dozen small ways (the `Authorization` header, `unverified`, the complexity cap, `printWidth`); the drift is the cost |
-| One package instead of five                                           | encoding-helper would install the archive client and spark-md5 it never uses, and one version number would couple unrelated changes                            |
-| GitHub Packages registry                                              | Requires an auth token even to install public packages, which every contributor and CI job of the apps would need                                              |
-| pnpm or Turborepo                                                     | Five small packages and `tsc -b` do not need a task graph; the apps use npm, so the same lockfile format and commands here keep one mental model               |
+| Pattern                                                         | Why not                                                                                                                                                        |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Git submodule of this repo in each app                          | Pins a commit rather than a version, no changelog, breaks `npm ci` caching, and Vite would compile the shared TypeScript with each app's settings              |
+| `"@brain-bbqs/ui": "github:brain-bbqs/bbqs-web-components#..."` | npm cannot install a subdirectory of a git repo, so this would need one repo per package; loses Dependabot version ranges and provenance                       |
+| Copy-and-diff (the status quo)                                  | The three copies had already drifted in a dozen small ways (the `Authorization` header, `unverified`, the complexity cap, `printWidth`); the drift is the cost |
+| One package instead of five                                     | encoding-helper would install the archive client and spark-md5 it never uses, and one version number would couple unrelated changes                            |
+| GitHub Packages registry                                        | Requires an auth token even to install public packages, which every contributor and CI job of the apps would need                                              |
+| pnpm or Turborepo                                               | Five small packages and `tsc -b` do not need a task graph; the apps use npm, so the same lockfile format and commands here keep one mental model               |

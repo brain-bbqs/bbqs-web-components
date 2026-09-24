@@ -6,10 +6,10 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brain-bbqs/brain-bbqs-web-components.git",
+    "url": "git+https://github.com/brain-bbqs/bbqs-web-components.git",
     "directory": "packages/config"
   },
-  "homepage": "https://github.com/brain-bbqs/brain-bbqs-web-components/tree/main/packages/config#readme",
+  "homepage": "https://github.com/brain-bbqs/bbqs-web-components/tree/main/packages/config#readme",
   "files": [
     "*.js",
     "*.d.ts",

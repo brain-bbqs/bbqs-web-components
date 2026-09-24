@@ -9,10 +9,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brain-bbqs/brain-bbqs-web-components.git",
+    "url": "git+https://github.com/brain-bbqs/bbqs-web-components.git",
     "directory": "packages/ui"
   },
-  "homepage": "https://github.com/brain-bbqs/brain-bbqs-web-components/tree/main/packages/ui#readme",
+  "homepage": "https://github.com/brain-bbqs/bbqs-web-components/tree/main/packages/ui#readme",
   "files": [
     "dist",
     "styles",

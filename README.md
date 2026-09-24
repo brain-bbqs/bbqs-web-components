@@ -1,4 +1,4 @@
-# brain-bbqs-web-components
+# bbqs-web-components
 
 Common components shared across the BBQS companion web apps ([clip-extractor](https://github.com/brain-bbqs/clip-extractor),
 [encoding-helper](https://github.com/brain-bbqs/encoding-helper), [bbqs-uploader](https://github.com/brain-bbqs/bbqs-uploader)),
