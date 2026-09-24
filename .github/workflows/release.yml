@@ -35,14 +35,15 @@ jobs:
         run: npm ci
 
       - name: Create release pull request or publish
-        uses: changesets/action@v1
+        uses: changesets/action@v2
+        # v2 renamed every input (v1's version/publish/title/commit are ignored) and takes the
+        # GitHub token only through `github-token`, which defaults to this workflow's own token.
         with:
-          version: npm run version-packages
-          publish: npm run release
-          title: "Released pending package versions"
-          commit: "Bumped package versions"
+          version-script: npm run version-packages
+          publish-script: npm run release
+          pr-title: "Released pending package versions"
+          commit-message: "Bumped package versions"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Granular automation token for the @brain-bbqs org on npmjs.com, or drop this line once
           # the packages are set up for OIDC trusted publishing (see docs/VENDORING.md).
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
