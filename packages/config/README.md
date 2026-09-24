@@ -22,7 +22,7 @@ npm install --save-dev @brain-bbqs/config
 
 ## Usage
 
-`configs/eslint.config.js` (rename from `.cjs`; ESLint 9 loads ESM flat configs directly):
+`configs/eslint.config.js` (rename from `.cjs`; ESLint 9 and 10 load ESM flat configs directly):
 
 ```js
 import path from "node:path";

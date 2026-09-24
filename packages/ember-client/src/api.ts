@@ -109,7 +109,7 @@ export async function diagnoseCors(cfg: ArchiveConfig, origin: string = window.l
   }
   // GETs pass: check whether POSTs fail across the board or only the upload endpoint, using a
   // harmless read-only POST (/blobs/digest/ lookup).
-  let postPasses = false;
+  let postPasses: boolean;
   try {
     const r = await fetch(`${cfg.api}/blobs/digest/`, {
       method: "POST",
