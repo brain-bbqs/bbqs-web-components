@@ -24,11 +24,28 @@ npm install --save-dev @brain-bbqs/config @brain-bbqs/test-utils
 | `configs/storybook/main.ts`, `preview.ts`               | `createStorybookMain(...)`, `storybookPreview` (clip-extractor keeps its `staticDirs`)                      |
 | `configs/appVersion.ts`                                 | `resolveAppVersion(new URL("../package.json", import.meta.url))`                                            |
 | the inline `<script>` at the top of `index.html`        | `prePaintPlugin({ themeKey, settingsKey })` in the Vite config                                              |
-| `.pre-commit-config.yaml`'s `--config configs/...` args | keep them, pointing at the `.js` files                                                                      |
+| `.pre-commit-config.yaml`'s `--config configs/...` args | keep them, pointing at the `.js` files; the prettier hook changes too (below)                               |
 
 Both `configs/.codespellrc` and `.github/workflows/*` stay in the apps: they are per-repository
-(deploy targets, Chromatic tokens, custom words). The lint/test workflow steps themselves need no
-change, since the npm scripts keep their names.
+(deploy targets, Chromatic tokens, custom words).
+
+What the table does not show, learned adopting it in all three apps and the web-app template:
+
+- **Prettier moves to a local pre-commit hook.** The `mirrors-prettier` hook runs in an isolated
+  environment, where `configs/prettier.config.js` cannot resolve `@brain-bbqs/config`. Replace it
+  with a `local`, `language: system` hook running `npx --no -- prettier --write --ignore-unknown
+--config configs/prettier.config.js`, add `prettier` to `ci: skip` beside `eslint`, add a
+  `format:check` script (`prettier --config configs/prettier.config.js --check .`) and run it in the
+  Lint workflow, and make `prettier` a direct devDependency if the app relied on the hook's copy.
+- **The Vite config imports the storage keys** from the app's settings module, with the `.ts`
+  extension and `"allowImportingTsExtensions": true` in `configs/tsconfig.json`. A key that was a
+  private constant in `main.ts` moves into that module first.
+- **Defaults an app may not have had:** `worker.format: "es"` (an app on Vite's `iife` default
+  gets module workers; ffmpeg.wasm starts its worker as a module either way), the jsdom test
+  environment (pass `environment: "node"` if that was the app's), the `json` coverage reporter, and
+  the shared Storybook preview (light theme pinned, Storybook's backgrounds off).
+- **Nothing rendered changes.** Coverage, the integration and Chromatic specs and the Storybook build
+  should all come out the same as on `main`; a difference is a missed option, not an expected cost.
 
 ## clip-extractor
 

@@ -42,6 +42,10 @@
       "types": "./storybook.d.ts",
       "default": "./storybook.js"
     },
+    "./storybook-preview": {
+      "types": "./storybook-preview.d.ts",
+      "default": "./storybook-preview.js"
+    },
     "./app-version": {
       "types": "./app-version.d.ts",
       "default": "./app-version.js"

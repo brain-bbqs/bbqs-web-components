@@ -13,4 +13,6 @@ export interface PrePaintOptions {
 export declare function prePaintScript(options: PrePaintOptions): string;
 
 /** A Vite plugin injecting {@link prePaintScript} into <head> at build and dev time. */
+export declare const PRE_PAINT_PLUGIN_NAME: "brain-bbqs:pre-paint";
+
 export declare function prePaintPlugin(options: PrePaintOptions): Plugin;

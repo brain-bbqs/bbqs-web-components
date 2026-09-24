@@ -1,4 +1,10 @@
 import { resolveAppVersion } from "./app-version.js";
+import { PRE_PAINT_PLUGIN_NAME } from "./pre-paint.js";
+
+// Kept here too for configs written before the split; a preview.ts should import it from
+// `@brain-bbqs/config/storybook-preview`, since this module reads package.json with node:fs and
+// would drag that into the browser bundle.
+export { storybookPreview } from "./storybook-preview.js";
 
 /**
  * @typedef {object} StorybookMainOptions
@@ -12,8 +18,9 @@ import { resolveAppVersion } from "./app-version.js";
  */
 
 /**
- * The Storybook `main.ts` the apps share: the html-vite framework, no addons, and the same
- * `__APP_VERSION__` define the app build performs so story markup can stamp the footer version.
+ * The Storybook `main.ts` the apps share: the html-vite framework, no addons, the same
+ * `__APP_VERSION__` define the app build performs so story markup can stamp the footer version, and
+ * the app's pre-paint plugin taken back out.
  *
  * @param {StorybookMainOptions} options
  * @returns {import("@storybook/html-vite").StorybookConfig}
@@ -33,6 +40,15 @@ export function createStorybookMain({
     },
     ...(staticDirs ? { staticDirs } : {}),
     async viteFinal(config) {
+      // Storybook builds with the app's own Vite config, pre-paint plugin included. Stories pin the
+      // theme through the decorator below, and a stored sign-in would hide the signed-out states, so
+      // the script has no place in Storybook's iframe.
+      config.plugins = config.plugins
+        ?.flat(Infinity)
+        .filter(
+          (plugin) =>
+            !(plugin && typeof plugin === "object" && "name" in plugin && plugin.name === PRE_PAINT_PLUGIN_NAME),
+        );
       config.define = {
         ...config.define,
         __APP_VERSION__: JSON.stringify(resolveAppVersion(packageJson)),
@@ -41,46 +57,3 @@ export function createStorybookMain({
     },
   };
 }
-
-/**
- * The Storybook preview the apps share, minus the stylesheet import (each app's `preview.ts` adds
- * `import "../../src/style.css"` itself, since a JS module cannot import CSS on the app's behalf).
- *
- * The app stylesheets theme <body> themselves (light by default, dark via data-theme or the OS
- * preference), so Storybook's own background layer is disabled rather than painted over it. The
- * toolbar switch pins data-theme explicitly, which also keeps Chromatic snapshots deterministic
- * regardless of the runner's OS color-scheme preference.
- */
-export const storybookPreview = {
-  parameters: {
-    backgrounds: { disable: true },
-  },
-  globalTypes: {
-    theme: {
-      description: "App color theme",
-      toolbar: {
-        title: "Theme",
-        icon: "circlehollow",
-        items: [
-          { value: "light", title: "Light" },
-          { value: "dark", title: "Dark" },
-        ],
-        dynamicTitle: true,
-      },
-    },
-  },
-  initialGlobals: {
-    theme: "light",
-  },
-  decorators: [
-    /**
-     * @param {() => HTMLElement} story
-     * @param {{ globals: { theme?: string } }} context
-     * @returns {HTMLElement}
-     */
-    (story, context) => {
-      document.documentElement.dataset.theme = context.globals.theme ?? "light";
-      return story();
-    },
-  ],
-};
