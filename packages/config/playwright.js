@@ -6,7 +6,9 @@ import { devices } from "@playwright/test";
  * @property {string | URL} rootDir The app root: where `npm run build && npm run preview` runs.
  * @property {string} testDir Where the specs are, relative to the config file that calls this
  *   (the apps use `../tests/integration` and `../tests/chromatic`).
- * @property {number} [port] The preview server's port (default 4173).
+ * @property {number} [port] The preview server's port (default 4173). The preview runs with
+ *   `--strictPort`: without it, Vite quietly moves to the next free port when another app's preview
+ *   holds this one, and the suite tests that other app instead.
  * @property {string} [webServerCommand] Overrides the build-and-preview command.
  * @property {false} [webServer] Pass `false` for a suite that needs no server.
  * @property {string} [globalSetup] A module run once before any worker starts.
@@ -61,7 +63,7 @@ export function createPlaywrightConfig({
       ? {}
       : {
           webServer: {
-            command: webServerCommand ?? `npm run build && npm run preview -- --port ${port}`,
+            command: webServerCommand ?? `npm run build && npm run preview -- --port ${port} --strictPort`,
             url: baseURL,
             cwd: root,
             reuseExistingServer: !process.env.CI,

@@ -26,6 +26,13 @@ describe("bodyOf", () => {
     expect(bodyOf(PAGE)).toBe('<main id="app">hi</main>');
     expect(bodyOf("<p>fragment</p>")).toBe("<p>fragment</p>");
   });
+
+  it("drops every <script> when asked, for a harness that imports the entry module itself", () => {
+    const page =
+      '<html><head><script>1</script></head><body><main id="a">hi</main><script type="module" src="/x.js"></script></body></html>';
+    expect(bodyOf(page, { stripScripts: true })).toBe('<main id="a">hi</main>');
+    expect(bodyOf(page)).toContain("<script");
+  });
 });
 
 describe("mountHtml", () => {

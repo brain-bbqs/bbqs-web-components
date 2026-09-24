@@ -73,8 +73,34 @@ describe("fmtBytes", () => {
   });
 });
 
+// Both apps' own formatters printed a sub-KB count as given and sent NaN to their top unit; the
+// app passes fractional counts (projected sizes, savings), so the presets must too.
+describe.each([
+  { name: "bytes", format: bytes, top: "TB" },
+  { name: "fmtBytes", format: fmtBytes, top: "GB" },
+])("$name on inputs a threshold chain treats differently from a rounding ladder", ({ format, top }) => {
+  it.each([
+    [512.37, "512.37 B"],
+    [1.5, "1.5 B"],
+    [1023.6, "1023.6 B"],
+    [-2048, "-2048 B"],
+  ])("prints %s as %s", (n, expected) => {
+    expect(format(n)).toBe(expected);
+  });
+
+  it("lands NaN in the top unit and Infinity there too", () => {
+    expect(format(NaN)).toBe(`NaN ${top}`);
+    expect(format(Infinity)).toBe(`Infinity ${top}`);
+  });
+});
+
 // bbqs-uploader's `humanSize`.
 describe("humanSize", () => {
+  it("rounds a sub-KB count, as the uploader always has", () => {
+    expect(humanSize(512.37)).toBe("512 B");
+    expect(humanSize(NaN)).toBe("NaN B");
+  });
+
   it("formats bytes with the right unit", () => {
     expect(humanSize(500)).toBe("500 B");
     expect(humanSize(1536)).toBe("1.5 KB");

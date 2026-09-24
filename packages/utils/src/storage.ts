@@ -80,8 +80,15 @@ export interface ChoiceStore<T extends string> {
   clear(): void;
 }
 
-/** One of a fixed set of strings under a key, such as the "light"/"dark" theme override. */
-export function createChoiceStore<T extends string>(key: string, values: readonly T[]): ChoiceStore<T> {
+/**
+ * One of a fixed set of strings under a key, such as the "light"/"dark" theme override. `onError`
+ * (default: `console.warn` naming the key) hears about a failed write, so an app keeps its own wording.
+ */
+export function createChoiceStore<T extends string>(
+  key: string,
+  values: readonly T[],
+  onError: (e: unknown) => void = warn(key),
+): ChoiceStore<T> {
   return {
     key,
     values,
@@ -90,10 +97,10 @@ export function createChoiceStore<T extends string>(key: string, values: readonl
       return raw !== null && (values as readonly string[]).includes(raw) ? (raw as T) : null;
     },
     save(value) {
-      writeStorageItem(key, value);
+      writeStorageItem(key, value, onError);
     },
     clear() {
-      writeStorageItem(key, null);
+      writeStorageItem(key, null, onError);
     },
   };
 }
@@ -104,15 +111,18 @@ export interface FlagStore {
   save(on: boolean): void;
 }
 
-/** A boolean under a key, stored as "1" when on and removed when off, so the default is off. */
-export function createFlagStore(key: string): FlagStore {
+/**
+ * A boolean under a key, stored as "1" when on and removed when off, so the default is off.
+ * `onError` works as in {@link createChoiceStore}.
+ */
+export function createFlagStore(key: string, onError: (e: unknown) => void = warn(key)): FlagStore {
   return {
     key,
     load() {
       return readStorageItem(key) === "1";
     },
     save(on) {
-      writeStorageItem(key, on ? "1" : null);
+      writeStorageItem(key, on ? "1" : null, onError);
     },
   };
 }

@@ -158,4 +158,13 @@ describe("stores when localStorage itself throws", () => {
     expect(() => flag.save(true)).not.toThrow();
     expect(console.warn).toHaveBeenCalledWith("Could not save c:", expect.any(Error));
   });
+
+  it("hands a failed write to the store's own onError, so an app keeps its wording", () => {
+    const onError = vi.fn();
+    createChoiceStore("c", ["x", "y"], onError).save("x");
+    createChoiceStore("c", ["x", "y"], onError).clear();
+    createFlagStore("f", onError).save(true);
+    expect(onError).toHaveBeenCalledTimes(2);
+    expect(console.warn).not.toHaveBeenCalled();
+  });
 });
