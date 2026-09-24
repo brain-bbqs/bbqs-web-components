@@ -19,10 +19,11 @@
 
 ## Recommendations
 
-1. **Do the npm org setup once.** Create the `brain-bbqs` organization on npmjs.com and either add a
-   granular automation token as the `NPM_TOKEN` secret (what `release.yml` expects today) or, better,
-   configure [trusted publishing](https://docs.npmjs.com/trusted-publishers) for each package and drop
-   the token entirely. The workflow already requests `id-token: write`.
+1. **Publishing uses npm trusted publishing.** Each package on npmjs.com trusts
+   `.github/workflows/release.yml` in this repository, so a release needs no npm token or secret:
+   npm exchanges the job's OIDC token for a short-lived one. npm configures a trusted publisher per
+   existing package, so a brand-new package is published once by hand and then trusted, before CI
+   can release it.
 
 2. **Pin in the apps with caret ranges and let Dependabot bump.** `"@brain-bbqs/ui": "^0.1.0"` plus
    the apps' existing Dependabot config (add an `npm` ecosystem entry grouped on `@brain-bbqs/*`)
