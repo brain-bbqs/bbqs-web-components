@@ -8,7 +8,7 @@ import { createEslintConfig, DEFAULT_IGNORES } from "../eslint.js";
 import { createPlaywrightConfig } from "../playwright.js";
 import prettierConfig from "../prettier.js";
 import { createStorybookMain, storybookPreview } from "../storybook.js";
-import { createViteConfig } from "../vite.js";
+import { createViteConfig, prePaintPlugin } from "../vite.js";
 import { createVitestConfig } from "../vitest.js";
 
 /** A throwaway app root holding a package.json, the one file every factory reads. */
@@ -126,6 +126,14 @@ describe("createVitestConfig", () => {
     );
     expect(config.test?.clearMocks).toBe(false);
   });
+
+  it("replaces the coverage reporters when given a list, which overrides would only append to", () => {
+    const config = createVitestConfig({ rootDir: appRoot(), coverageReporter: ["text", "lcov"] });
+    expect(config.test?.coverage && "reporter" in config.test.coverage ? config.test.coverage.reporter : []).toEqual([
+      "text",
+      "lcov",
+    ]);
+  });
 });
 
 describe("createPlaywrightConfig", () => {
@@ -184,6 +192,14 @@ describe("createStorybookMain", () => {
     expect(main.staticDirs).toEqual([{ from: "../../src/assets", to: "/src/assets" }]);
     const viteFinal = main.viteFinal as (c: InlineConfig) => Promise<InlineConfig>;
     expect((await viteFinal({})).base).toBe("/x/");
+  });
+
+  it("drops the app's pre-paint plugin, however deeply its plugin list nests it", async () => {
+    const main = createStorybookMain({ packageJson: join(appRoot(), "package.json") });
+    const viteFinal = main.viteFinal as (c: InlineConfig) => Promise<InlineConfig>;
+    const other = { name: "other" };
+    const config = await viteFinal({ plugins: [other, [[prePaintPlugin({ themeKey: "t" })]], null] });
+    expect(config.plugins).toEqual([other, null]);
   });
 });
 

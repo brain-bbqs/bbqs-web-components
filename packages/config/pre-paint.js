@@ -8,6 +8,9 @@
  *   `oauth.accessToken` marks a returning signed-in visitor. Omit for an app with no sign-in.
  */
 
+/** The name {@link prePaintPlugin} registers under. */
+export const PRE_PAINT_PLUGIN_NAME = "brain-bbqs:pre-paint";
+
 /**
  * The script body (no <script> tags) that applies a stored theme override, and marks a returning
  * signed-in visitor, before first paint.
@@ -41,16 +44,19 @@ export function prePaintScript({ themeKey, settingsKey }) {
 }
 
 /**
- * A Vite plugin injecting {@link prePaintScript} into <head>, so index.html carries no copy of it.
+ * A Vite plugin injecting {@link prePaintScript} at the top of <head>, so index.html carries no copy
+ * of it. {@link PRE_PAINT_PLUGIN_NAME} names it, so a Storybook config can drop it again.
  *
  * @param {PrePaintOptions} options
  * @returns {import("vite").Plugin}
  */
 export function prePaintPlugin(options) {
   return {
-    name: "brain-bbqs:pre-paint",
+    name: PRE_PAINT_PLUGIN_NAME,
     transformIndexHtml() {
-      return [{ tag: "script", children: prePaintScript(options), injectTo: "head" }];
+      // Prepended, where the apps' inline copy sat: after the stylesheet link it would wait for the
+      // CSS to download before running, holding up parsing for nothing.
+      return [{ tag: "script", children: prePaintScript(options), injectTo: "head-prepend" }];
     },
   };
 }

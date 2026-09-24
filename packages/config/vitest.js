@@ -12,6 +12,8 @@ import { resolveAppVersion } from "./app-version.js";
  * @property {string[]} [coverageExclude] Files left out of coverage on top of the standard set
  *   (declarations, tests, stories, configs).
  * @property {import("vitest/node").CoverageOptions["thresholds"]} [thresholds] Coverage floors.
+ * @property {string[]} [coverageReporter] Coverage reporters (default text, lcov and json). An option
+ *   rather than an override because `mergeConfig` concatenates arrays instead of replacing them.
  * @property {string | URL | false} [packageJson] The package.json `__APP_VERSION__` is read from,
  *   or `false` to skip the define. Defaults to `<rootDir>/package.json`.
  * @property {import("vitest/config").ViteUserConfig} [overrides] Anything else, merged on top.
@@ -40,6 +42,7 @@ export function createVitestConfig({
   coverageInclude = ["src/**/*.ts"],
   coverageExclude = [],
   thresholds,
+  coverageReporter = ["text", "lcov", "json"],
   packageJson,
   overrides = {},
 }) {
@@ -65,7 +68,7 @@ export function createVitestConfig({
           "configs/**",
           ...coverageExclude,
         ],
-        reporter: ["text", "lcov", "json"],
+        reporter: coverageReporter,
         ...(thresholds ? { thresholds } : {}),
       },
     },

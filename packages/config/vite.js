@@ -49,4 +49,4 @@ export function createViteConfig({ rootDir, packageJson, overrides = {} }) {
   return mergeConfig(base, overrides);
 }
 
-export { prePaintPlugin, prePaintScript } from "./pre-paint.js";
+export { PRE_PAINT_PLUGIN_NAME, prePaintPlugin, prePaintScript } from "./pre-paint.js";

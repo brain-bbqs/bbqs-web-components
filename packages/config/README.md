@@ -16,7 +16,8 @@ npm install --save-dev @brain-bbqs/config
 | `@brain-bbqs/config/vite`               | `configs/vite.config.ts`                         |
 | `@brain-bbqs/config/vitest`             | `configs/vitest.config.ts`                       |
 | `@brain-bbqs/config/playwright`         | `configs/playwright.shared.ts` and both configs  |
-| `@brain-bbqs/config/storybook`          | `configs/storybook/main.ts` and `preview.ts`     |
+| `@brain-bbqs/config/storybook`          | `configs/storybook/main.ts`                      |
+| `@brain-bbqs/config/storybook-preview`  | `configs/storybook/preview.ts`                   |
 | `@brain-bbqs/config/app-version`        | `configs/appVersion.ts`                          |
 | `@brain-bbqs/config/pre-paint`          | the inline `<script>` at the top of `index.html` |
 
@@ -54,7 +55,10 @@ export default config; // clip-extractor: { ...config, printWidth: 140 }
 
 ```ts
 import { createViteConfig, prePaintPlugin } from "@brain-bbqs/config/vite";
-import { STORAGE_KEY, THEME_KEY } from "../src/lib/settings";
+// With the extension (and `allowImportingTsExtensions` in the tsconfig): Vite's native config
+// loader refuses extensionless imports. Keep the keys in a module with few imports of its own, since
+// the config loader follows them too.
+import { STORAGE_KEY, THEME_KEY } from "../src/lib/settings.ts";
 
 export default createViteConfig({
   rootDir: new URL("..", import.meta.url),
@@ -74,6 +78,10 @@ export default createVitestConfig({
   thresholds: { statements: 99, branches: 98, functions: 99, lines: 99 },
 });
 ```
+
+The default environment is jsdom; an app whose suites run under node by default passes
+`environment: "node"`. Array settings (the coverage reporters, say) cannot be changed through
+`overrides`, since `mergeConfig` concatenates arrays; `coverageReporter` exists for that reason.
 
 `configs/playwright.config.ts` and `configs/playwright.chromatic.config.ts`:
 
@@ -95,16 +103,23 @@ export default createStorybookMain({ packageJson: new URL("../../package.json", 
 
 ```ts
 import "../../src/style.css";
-import { storybookPreview } from "@brain-bbqs/config/storybook";
-export default storybookPreview;
+import { storybookPreview } from "@brain-bbqs/config/storybook-preview";
+// Spread: Storybook statically parses the default export and warns unless it is an object literal.
+export default { ...storybookPreview };
 ```
+
+The preview lives in its own entry point because `preview.ts` runs in the browser and the
+`storybook` entry reads `package.json` with `node:fs`. `createStorybookMain` also takes the
+pre-paint plugin back out of the app's Vite config: stories pin the theme through the preview's
+decorator, and a stored sign-in would otherwise hide the signed-out states.
 
 ## Pre-paint script
 
 The apps inline a script in `index.html` that applies the stored light/dark override (and, for the
 two apps with sign-in, marks a returning signed-in visitor) before first paint. `prePaintPlugin`
 injects the same script from the app's own storage-key constants, so the two literals can no longer
-drift apart. Delete the inline script from `index.html` when adopting it.
+drift apart. Delete the inline script from `index.html` when adopting it. The script goes first in
+`<head>`, where the inline copy was, so it never waits on the stylesheet.
 
 ## Chromatic
 

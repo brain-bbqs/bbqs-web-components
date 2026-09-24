@@ -14,6 +14,8 @@ export interface VitestConfigOptions {
   coverageExclude?: string[];
   /** Coverage floors. */
   thresholds?: CoverageOptions["thresholds"];
+  /** Coverage reporters (default text, lcov and json); `overrides` cannot replace an array. */
+  coverageReporter?: string[];
   /** The package.json `__APP_VERSION__` is read from, or `false` to skip the define. */
   packageJson?: string | URL | false;
   /** Anything else, merged on top. */

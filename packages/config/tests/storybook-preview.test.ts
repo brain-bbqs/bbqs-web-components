@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { storybookPreview } from "../storybook.js";
+import { storybookPreview } from "../storybook-preview.js";
 
 describe("storybookPreview decorator", () => {
   it("pins data-theme from the toolbar global before building the story", () => {

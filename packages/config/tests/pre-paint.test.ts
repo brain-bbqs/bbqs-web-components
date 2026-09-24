@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { prePaintPlugin, prePaintScript } from "../pre-paint.js";
+import { PRE_PAINT_PLUGIN_NAME, prePaintPlugin, prePaintScript } from "../pre-paint.js";
 
 const THEME_KEY = "app.theme";
 const SETTINGS_KEY = "app.settings.v1";
@@ -69,11 +69,11 @@ describe("prePaintScript", () => {
 describe("prePaintPlugin", () => {
   it("injects the script into <head> through Vite's transformIndexHtml hook", () => {
     const plugin = prePaintPlugin({ themeKey: THEME_KEY, settingsKey: SETTINGS_KEY });
-    expect(plugin.name).toBe("brain-bbqs:pre-paint");
+    expect(plugin.name).toBe(PRE_PAINT_PLUGIN_NAME);
     const hook = plugin.transformIndexHtml as () => { tag: string; children: string; injectTo: string }[];
     const [tag] = hook();
     expect(tag.tag).toBe("script");
-    expect(tag.injectTo).toBe("head");
+    expect(tag.injectTo).toBe("head-prepend");
     expect(tag.children).toBe(prePaintScript({ themeKey: THEME_KEY, settingsKey: SETTINGS_KEY }));
   });
 });
