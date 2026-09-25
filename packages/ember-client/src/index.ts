@@ -35,7 +35,17 @@ export {
   fetchDraftMetadata,
   type DraftVersionMetadata,
 } from "./humanSubjects.js";
-export { planParts, hashPart, combineDigests, computeDandiEtag, computeMd5 } from "./etag.js";
+export {
+  planParts,
+  hashPart,
+  combineDigests,
+  computeDandiEtag,
+  computeMd5,
+  readChunks,
+  createEtag,
+  DEFAULT_ETAG_MESSAGES,
+} from "./etag.js";
+export type { Etag, EtagMessages } from "./etag.js";
 export {
   resolveConfig,
   configProblems,

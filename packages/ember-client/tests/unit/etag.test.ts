@@ -4,7 +4,16 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { InterruptedError } from "@brain-bbqs/utils";
-import { combineDigests, computeDandiEtag, computeMd5, hashPart, planParts } from "../../src/etag.js";
+import {
+  combineDigests,
+  computeDandiEtag,
+  computeMd5,
+  createEtag,
+  DEFAULT_ETAG_MESSAGES,
+  hashPart,
+  planParts,
+  readChunks,
+} from "../../src/etag.js";
 import type { FilePart } from "../../src/types.js";
 
 const MB = 2 ** 20;
@@ -192,5 +201,51 @@ describe("stopping a hash partway through", () => {
     await expect(computeDandiEtag(bytes, planParts(2048), undefined, controller.signal)).rejects.toThrow(
       InterruptedError,
     );
+  });
+});
+
+describe("createEtag", () => {
+  const uploader = createEtag({
+    emptyFile: "Empty files cannot be uploaded to DANDI.",
+    fileChanged: "The source file changed while hashing, please re-load it.",
+  });
+
+  it("throws the app's own wording for an empty or changed file", async () => {
+    expect(() => uploader.planParts(0)).toThrow("Empty files cannot be uploaded to DANDI.");
+    const file = new Blob([filled(1000)]);
+    const short = { number: 1, offset: 0, size: 2000 };
+    await expect(uploader.hashPart(file, short)).rejects.toThrow(
+      "The source file changed while hashing, please re-load it.",
+    );
+    await expect(uploader.computeDandiEtag(file, [short])).rejects.toThrow(/source file changed/);
+    await expect(uploader.readChunks(file, 0, 2000, () => {})).rejects.toThrow(/source file changed/);
+  });
+
+  it("keeps the default text for any message left out", () => {
+    expect(() => uploader.planParts(5 * 2 ** 40 + 1)).toThrow(DEFAULT_ETAG_MESSAGES.tooLarge);
+    expect(() => createEtag().planParts(0)).toThrow(DEFAULT_ETAG_MESSAGES.emptyFile);
+  });
+
+  it("hashes exactly as the default functions do", async () => {
+    const bytes = new Blob([filled(3 * MB + 7)]);
+    const parts = planParts(bytes.size);
+    expect(await uploader.computeDandiEtag(bytes, parts)).toBe(await computeDandiEtag(bytes, parts));
+    expect(await uploader.computeMd5(bytes)).toBe(await computeMd5(bytes));
+    expect(await uploader.hashPart(bytes, parts[0])).toEqual(await hashPart(bytes, parts[0]));
+  });
+});
+
+describe("readChunks", () => {
+  it("hands every byte of the range to take, with the running total, for an app's own digest", async () => {
+    const bytes = filled(40 * MB + 3);
+    const sha = createHash("sha256");
+    const totals: number[] = [];
+    await readChunks(new Blob([bytes]), 5, bytes.length - 5, (buf, read) => {
+      sha.update(new Uint8Array(buf));
+      totals.push(read);
+    });
+    expect(sha.digest("hex")).toBe(createHash("sha256").update(bytes.subarray(5)).digest("hex"));
+    expect(totals.at(-1)).toBe(bytes.length - 5);
+    expect(totals.length).toBe(3);
   });
 });

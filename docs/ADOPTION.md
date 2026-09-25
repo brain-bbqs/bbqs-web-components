@@ -48,6 +48,10 @@ What the table does not show, learned adopting it in all three apps and the web-
   `createFlagStore(key, onError)` pass a failed write to `onError`, so an app whose tests assert its
   own "Could not save ..." wording keeps it.
 - **A harness that strips scripts** uses `bodyOf(html, { stripScripts: true })` in a jsdom suite.
+- **Hashing errors keep the app's wording.** `createEtag({ emptyFile, fileChanged })` returns
+  `planParts`, `hashPart`, `computeDandiEtag`, `computeMd5` and `readChunks` throwing the app's own
+  messages (bbqs-uploader's "uploaded to DANDI", clip-extractor's "please re-load it"), and
+  `readChunks` is the chunked reader for an app-local digest such as clip-extractor's SHA-256.
 - **Nothing rendered changes.** Coverage, the integration and Chromatic specs and the Storybook build
   should all come out the same as on `main`; a difference is a missed option, not an expected cost.
 

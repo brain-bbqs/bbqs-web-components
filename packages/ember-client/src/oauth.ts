@@ -21,19 +21,21 @@ export interface OAuthClientOptions {
   now?: () => number;
 }
 
+// Function properties rather than methods: none of them reads `this`, so an app can destructure
+// them (`const { startLogin } = client`) without tripping the unbound-method lint rule.
 export interface OAuthClient {
   /** Redirects the browser to the archive's OAuth2 authorize page (Authorization Code + PKCE). */
-  startLogin(navigate?: (url: string) => void): Promise<void>;
+  startLogin: (navigate?: (url: string) => void) => Promise<void>;
   /**
    * If the current URL is an OAuth redirect callback (has `code` + `state` query params), completes
    * the PKCE exchange and returns the resulting tokens, stripping the OAuth params from the URL bar
    * either way. Returns null if this isn't a callback, or if `state` doesn't match what was sent.
    */
-  handleRedirectCallback(): Promise<OAuthTokenSet | null>;
+  handleRedirectCallback: () => Promise<OAuthTokenSet | null>;
   /** Returns a token set with a non-expired access token, refreshing it first if needed. */
-  ensureFreshToken(tokens: OAuthTokenSet): Promise<OAuthTokenSet>;
+  ensureFreshToken: (tokens: OAuthTokenSet) => Promise<OAuthTokenSet>;
   /** Best-effort revocation; never throws, since local state is cleared regardless. */
-  revokeToken(tokens: OAuthTokenSet): Promise<void>;
+  revokeToken: (tokens: OAuthTokenSet) => Promise<void>;
 }
 
 // django-oauth-toolkit's default access token lifetime; refreshed proactively before it's hit.

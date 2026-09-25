@@ -15,10 +15,29 @@ const MAX_PART_SIZE = 5 * GB;
 const DEFAULT_PART_SIZE = 64 * MB;
 const HASH_CHUNK = 16 * MB;
 
+/**
+ * The texts the hashing functions throw, which the apps show beside a file. Each app words them
+ * for its own readers, so they are options rather than fixed strings; see {@link createEtag}.
+ */
+export interface EtagMessages {
+  /** Thrown by `planParts` for a zero-byte file. */
+  emptyFile: string;
+  /** Thrown by `planParts` above the 5 TB S3 object limit. */
+  tooLarge: string;
+  /** Thrown on a short read: the file changed underneath the hash. */
+  fileChanged: string;
+}
+
+export const DEFAULT_ETAG_MESSAGES: EtagMessages = {
+  emptyFile: "Empty files cannot be uploaded to EMBER.",
+  tooLarge: "File is larger than the S3 maximum object size (5 TB).",
+  fileChanged: "The file changed on disk while hashing; please re-add it.",
+};
+
 /** Faithful port of dandischema.digests.dandietag.PartGenerator. */
-export function planParts(fileSize: number): FilePart[] {
-  if (fileSize <= 0) throw new Error("Empty files cannot be uploaded to EMBER.");
-  if (fileSize > 5 * TB) throw new Error("File is larger than the S3 maximum object size (5 TB).");
+function planPartsWith(messages: EtagMessages, fileSize: number): FilePart[] {
+  if (fileSize <= 0) throw new Error(messages.emptyFile);
+  if (fileSize > 5 * TB) throw new Error(messages.tooLarge);
 
   let partSize = DEFAULT_PART_SIZE;
   if (Math.ceil(fileSize / partSize) >= MAX_PARTS) {
@@ -59,7 +78,8 @@ export function planParts(fileSize: number): FilePart[] {
  *
  * `signal` is read at every chunk boundary: hashing a multi-gigabyte source is the longest
  * uninterruptible stretch an upload has, and a chunk is 16MB of it. */
-async function eachChunk(
+async function eachChunkWith(
+  messages: EtagMessages,
   blob: Blob,
   offset: number,
   length: number,
@@ -73,7 +93,7 @@ async function eachChunk(
     const start = offset + read;
     const buf = await blob.slice(start, start + n).arrayBuffer();
     if (buf.byteLength !== n) {
-      throw new Error("The file changed on disk while hashing; please re-add it.");
+      throw new Error(messages.fileChanged);
     }
     read += n;
     take(buf, read);
@@ -85,14 +105,16 @@ async function eachChunk(
  * callers may hash any subset of a file's parts concurrently (bbqs-uploader's worker pool does) and
  * stitch the results together with {@link combineDigests}.
  */
-export async function hashPart(
+async function hashPartWith(
+  messages: EtagMessages,
   blob: Blob,
   part: FilePart,
   onChunk: (bytesDoneInPart: number) => void = () => {},
   signal?: AbortSignal,
 ): Promise<Uint8Array> {
   const spark = new SparkMD5.ArrayBuffer();
-  await eachChunk(
+  await eachChunkWith(
+    messages,
     blob,
     part.offset,
     part.size,
@@ -119,7 +141,8 @@ export function combineDigests(partDigests: Uint8Array, partCount: number): stri
 }
 
 /** Hashes every part of `blob` in order and returns its dandi-etag, reporting 0..1 progress. */
-export async function computeDandiEtag(
+async function computeDandiEtagWith(
+  messages: EtagMessages,
   blob: Blob,
   parts: FilePart[],
   onProgress: (fraction: number) => void = () => {},
@@ -131,7 +154,7 @@ export async function computeDandiEtag(
   for (const part of parts) {
     digests.set(
       // `take` only runs after a non-empty read, so `total` is never zero here.
-      await hashPart(blob, part, (n) => onProgress((done + n) / total), signal),
+      await hashPartWith(messages, blob, part, (n) => onProgress((done + n) / total), signal),
       (part.number - 1) * 16,
     );
     done += part.size;
@@ -145,13 +168,15 @@ export async function computeDandiEtag(
  * but a plain MD5 is what most tooling outside it expects. Streamed in the same HASH_CHUNK-sized
  * reads as `hashPart`; a separate pass over the bytes rather than folded into `computeDandiEtag`'s,
  * since that one resets its digest at every part boundary and this one must not. */
-export async function computeMd5(
+async function computeMd5With(
+  messages: EtagMessages,
   blob: Blob,
   onProgress: (fraction: number) => void = () => {},
   signal?: AbortSignal,
 ): Promise<string> {
   const spark = new SparkMD5.ArrayBuffer();
-  await eachChunk(
+  await eachChunkWith(
+    messages,
     blob,
     0,
     blob.size,
@@ -164,3 +189,49 @@ export async function computeMd5(
   onProgress(1);
   return spark.end();
 }
+
+export interface Etag {
+  planParts: (fileSize: number) => FilePart[];
+  hashPart: (
+    blob: Blob,
+    part: FilePart,
+    onChunk?: (bytesDoneInPart: number) => void,
+    signal?: AbortSignal,
+  ) => Promise<Uint8Array>;
+  computeDandiEtag: (
+    blob: Blob,
+    parts: FilePart[],
+    onProgress?: (fraction: number) => void,
+    signal?: AbortSignal,
+  ) => Promise<string>;
+  computeMd5: (blob: Blob, onProgress?: (fraction: number) => void, signal?: AbortSignal) => Promise<string>;
+  /**
+   * The chunked reader the hashes above share, for an app's own digest (clip-extractor's SHA-256):
+   * the same 16MB reads, interruption checks and short-read error.
+   */
+  readChunks: (
+    blob: Blob,
+    offset: number,
+    length: number,
+    take: (buf: ArrayBuffer, readSoFar: number) => void,
+    signal?: AbortSignal,
+  ) => Promise<void>;
+}
+
+/**
+ * The hashing functions with an app's own error wording. Any message left out keeps its
+ * {@link DEFAULT_ETAG_MESSAGES} text.
+ */
+export function createEtag(messages: Partial<EtagMessages> = {}): Etag {
+  const m: EtagMessages = { ...DEFAULT_ETAG_MESSAGES, ...messages };
+  return {
+    planParts: (fileSize) => planPartsWith(m, fileSize),
+    hashPart: (blob, part, onChunk, signal) => hashPartWith(m, blob, part, onChunk, signal),
+    computeDandiEtag: (blob, parts, onProgress, signal) => computeDandiEtagWith(m, blob, parts, onProgress, signal),
+    computeMd5: (blob, onProgress, signal) => computeMd5With(m, blob, onProgress, signal),
+    readChunks: (blob, offset, length, take, signal) => eachChunkWith(m, blob, offset, length, take, signal),
+  };
+}
+
+const defaultEtag = createEtag();
+export const { planParts, hashPart, computeDandiEtag, computeMd5, readChunks } = defaultEtag;
