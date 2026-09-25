@@ -31,12 +31,15 @@ export function createHumanSubjectsGate(
   let state: HumanSubjectsState = "hidden";
   let current = "";
 
+  // The two inner blocks follow the confirmation alone, whether or not the banner around them is
+  // showing, as both apps drew them.
   function draw(): void {
     const flagged = flaggedIds.has(current);
-    state = !flagged ? "hidden" : confirmedIds.has(current) ? "confirmed" : "unconfirmed";
-    els.banner.hidden = state === "hidden";
-    els.unconfirmed.hidden = state !== "unconfirmed";
-    els.confirmed.hidden = state !== "confirmed";
+    const confirmed = confirmedIds.has(current);
+    state = !flagged ? "hidden" : confirmed ? "confirmed" : "unconfirmed";
+    els.banner.hidden = !flagged;
+    els.unconfirmed.hidden = confirmed;
+    els.confirmed.hidden = !confirmed;
     onChange(state);
   }
 
@@ -60,6 +63,10 @@ export function createHumanSubjectsGate(
     },
   };
 
-  els.confirmBtn.addEventListener("click", () => gate.confirm(current));
+  // With no dataset picked there is nothing to confirm; the click only redraws.
+  els.confirmBtn.addEventListener("click", () => {
+    if (current) gate.confirm(current);
+    else draw();
+  });
   return gate;
 }

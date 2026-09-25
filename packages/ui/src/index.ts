@@ -14,6 +14,7 @@ export {
 export {
   renderAuthState,
   renderIdentity,
+  refreshIdentity,
   bindAccountMenu,
   type AccountElements,
   type AccountUser,
@@ -26,7 +27,7 @@ export {
   type HumanSubjectsGate,
   type HumanSubjectsState,
 } from "./humanSubjectsGate.js";
-export { bindDropzone, type DropzoneHandlers, type DropzoneBinding } from "./dropzone.js";
+export { bindDropzone, showDropzoneReject, type DropzoneHandlers, type DropzoneBinding } from "./dropzone.js";
 export {
   buildThemeToggle,
   buildAccountMenu,

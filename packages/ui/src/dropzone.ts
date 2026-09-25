@@ -9,6 +9,9 @@ export interface DropzoneHandlers {
   onDrop: (dataTransfer: DataTransfer, event: DragEvent) => void;
   /** The hidden <input type="file"> a click on the zone opens. */
   input?: HTMLInputElement;
+  /** Called with the input's files after a pick that chose any, before the input is cleared so
+   * picking the same file again still fires. Read what you need from the list synchronously. */
+  onPick?: (files: FileList) => void;
   /** A browse button inside the zone whose own click must not also count as a zone click. */
   browseButton?: HTMLElement;
   /** Whether to install the window-level guard (default true; install it once per page). */
@@ -21,7 +24,7 @@ export interface DropzoneBinding {
 }
 
 export function bindDropzone(zone: HTMLElement, handlers: DropzoneHandlers): DropzoneBinding {
-  const { onDrop, input, browseButton, guardWindow = true } = handlers;
+  const { onDrop, input, onPick, browseButton, guardWindow = true } = handlers;
   const cleanups: (() => void)[] = [];
   const on = <K extends keyof HTMLElementEventMap>(
     target: HTMLElement | Window,
@@ -54,6 +57,12 @@ export function bindDropzone(zone: HTMLElement, handlers: DropzoneHandlers): Dro
     // stopPropagation keeps the browse button's own click (and the synthetic click bubbling back
     // out of the hidden input) from opening a second picker on top.
     on(input, "click", (e) => e.stopPropagation());
+    if (onPick) {
+      on(input, "change", () => {
+        if (input.files?.length) onPick(input.files);
+        input.value = "";
+      });
+    }
     if (browseButton) {
       on(browseButton, "click", (e) => {
         e.stopPropagation();
@@ -72,4 +81,17 @@ export function bindDropzone(zone: HTMLElement, handlers: DropzoneHandlers): Dro
       for (const cleanup of cleanups.splice(0)) cleanup();
     },
   };
+}
+
+/**
+ * Shows `message` in the dropzone's reject line, each blank line ("\n\n") becoming a <br><br> gap.
+ * The breaks are real elements and the prose text nodes, so nothing in `message` is parsed as markup.
+ */
+export function showDropzoneReject(el: HTMLElement, message: string): void {
+  el.textContent = "";
+  message.split("\n\n").forEach((paragraph, i) => {
+    if (i) el.append(document.createElement("br"), document.createElement("br"));
+    el.append(paragraph);
+  });
+  el.hidden = false;
 }

@@ -1,0 +1,136 @@
+/* Cards, buttons, the dropdown, status lines, badges and the progress bar: the controls the apps
+   draw the same way. */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+.card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+.card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.card-heading h2 {
+  margin: 0;
+}
+
+/* No generic hover tint and no nowrap here: bbqs-uploader and the template have neither, and a
+   `button:hover` rule outranks every `.class:hover` an app draws its own buttons with.
+   clip-extractor keeps its three extra button rules in its own stylesheet (see ADOPTION.md). */
+button {
+  font: inherit;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+/* A disabled primary button goes grey as well as faint. An app whose disabled primaries keep the
+   accent (clip-extractor) sets --button-primary-disabled: var(--accent). */
+button.primary:disabled {
+  background: var(--button-primary-disabled, var(--muted));
+  border-color: var(--button-primary-disabled, var(--muted));
+}
+button.small {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+}
+button.ghost {
+  background: transparent;
+}
+
+select {
+  font: inherit;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+}
+
+/* A quiet line describing a control, and the outcome variants that report on one instead. */
+.hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.hint.ok {
+  color: var(--ok);
+}
+.hint.err {
+  color: var(--err);
+}
+
+.badge {
+  display: inline-block;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
+}
+.badge.ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.badge.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.badge.err {
+  background: var(--err-soft);
+  color: var(--err);
+}
+.badge.scan {
+  background: var(--scan-soft);
+  color: var(--scan);
+}
+.badge.upload {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.badge.restricted {
+  background: var(--restricted-soft);
+  color: var(--restricted);
+}
+
+/* A progress bar with its fill, turning green once done. No outer margin: where it sits is the
+   app's call. */
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.15s linear;
+}
+.progress-fill.ok {
+  background: var(--ok);
+}

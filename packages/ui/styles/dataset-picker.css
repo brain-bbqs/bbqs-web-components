@@ -1,0 +1,47 @@
+/* The upload destination: the "View on EMBER" pill in the card heading, the status line or
+   single-dataset readout standing in for the dropdown, and the not-embargoed refusal. The dropdown
+   itself is the plain `select` in controls.css. */
+
+/* The "View on EMBER" pill, in the flame's red. Its direction arrow (.btn-arrow) is left to the
+   app: clip-extractor sets it as plain text, bbqs-uploader enlarges and nudges it. */
+.view-dataset-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  background: var(--ember-red);
+  border: 1px solid var(--ember-red);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+}
+.view-dataset-link:hover {
+  background: var(--ember-red-hover);
+  border-color: var(--ember-red-hover);
+}
+.view-dataset-link:focus-visible {
+  outline: 2px solid var(--ember-red);
+  outline-offset: 1px;
+}
+
+/* Both the plain-text status line (signed out, loading, no datasets) and the single-dataset
+   readout that replaces the dropdown when there is nothing to choose between. */
+.dandiset-single {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 0.95rem;
+}
+.dandiset-embargo-error {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--err-soft);
+  color: var(--err);
+  font-size: 0.9rem;
+}

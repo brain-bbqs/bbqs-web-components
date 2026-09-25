@@ -185,6 +185,31 @@ describe("buildDropzone", () => {
     expect(browse.id).toBe("");
   });
 
+  it("takes the reject line's id and the file input inside the zone (bbqs-uploader, the template)", () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.id = "folder-input";
+    const dz = buildDropzone({ prompt: "Drop here, or ", browseLabel: "browse", rejectId: "dropzone-reject", input });
+    expect(dz.querySelector(".dz-reject")?.id).toBe("dropzone-reject");
+    expect(dz.lastElementChild).toBe(input);
+    expect(dz.querySelector(".dz-inner")?.nextElementSibling).toBe(input);
+  });
+
+  it("can leave out the reject line, and take a prompt with markup in it (clip-extractor)", () => {
+    const code = document.createElement("code");
+    code.textContent = ".slp";
+    const dz = buildDropzone({
+      prompt: ["Drop a SLEAP ", code, " here, or click to browse "],
+      browseLabel: "files",
+      reject: false,
+    });
+    expect(dz.querySelector(".dz-reject")).toBe(null);
+    const prompt = dz.querySelector(".dz-inner > p")!;
+    expect(prompt.querySelector("code")).toBe(code);
+    expect(prompt.textContent).toBe("Drop a SLEAP .slp here, or click to browse files.");
+    expect(dz.lastElementChild?.className).toBe("dz-inner");
+  });
+
   it("can be compact, carry a logo instead of an emoji, and have no browse button", () => {
     const logo = document.createElement("img");
     const dz = buildDropzone({ id: "slpDropzone", prompt: "Drop a pose file here.", icon: logo, compact: true });

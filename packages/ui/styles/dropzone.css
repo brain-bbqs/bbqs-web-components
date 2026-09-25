@@ -1,0 +1,63 @@
+/* The dashed drop target clip-extractor and bbqs-uploader share, with its browse link, hint line
+   and the reject message a refused drop leaves in it. */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.dropzone.dragover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.dropzone.compact {
+  padding: 1rem;
+}
+.dz-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 2rem;
+}
+.dz-logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+}
+.dz-inner p {
+  margin: 0.4rem 0;
+}
+/* A button that reads as the link in the sentence it sits in, not as a control beside it. */
+.dz-browse {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.dz-browse:hover:not(:disabled) {
+  background: none;
+}
+.dz-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+/* Scoped to .dz-inner so the `auto` side margins outrank `.dz-inner p`, which would otherwise
+   zero them out and leave the message flush against the dropzone's left edge. */
+.dz-inner .dz-reject {
+  margin: 0.85rem auto 0;
+  max-width: 26rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  background: var(--err-soft);
+  color: var(--err);
+  font-size: 0.85rem;
+}
