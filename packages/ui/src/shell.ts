@@ -262,13 +262,21 @@ export interface DropzoneOptions {
   id?: string;
   /** The emoji or logo shown above the prompt. */
   icon?: string | HTMLElement;
-  /** The prompt's text before the browse button, e.g. "Drop a video here, or click to browse ". */
-  prompt: string;
+  /** The prompt before the browse button, e.g. "Drop a video here, or click to browse ". Pass
+   * nodes for a prompt with markup in it (clip-extractor's `<code>.slp</code>`). */
+  prompt: string | (string | Node)[];
   /** The browse button's text, e.g. "files". Omit for a zone with no browse button. */
   browseLabel?: string;
   browseButtonId?: string;
   /** A quieter line under the prompt. */
   hint?: string;
+  /** Whether to include the hidden reject line (default true; clip-extractor's zones have none). */
+  reject?: boolean;
+  /** The reject line's id, for an app that looks it up (bbqs-uploader's "dropzone-reject"). */
+  rejectId?: string;
+  /** The hidden file input, placed inside the zone after its contents (bbqs-uploader, the
+   * web-app template). An app whose input sits elsewhere leaves this out. */
+  input?: HTMLInputElement;
   compact?: boolean;
 }
 
@@ -280,6 +288,9 @@ export function buildDropzone({
   browseLabel,
   browseButtonId,
   hint,
+  reject = true,
+  rejectId,
+  input,
   compact = false,
 }: DropzoneOptions): HTMLDivElement {
   const zone = h("div", compact ? "dropzone compact" : "dropzone");
@@ -287,7 +298,9 @@ export function buildDropzone({
   const inner = h("div", "dz-inner");
   const iconWrap = h("div", "dz-icon");
   iconWrap.append(typeof icon === "string" ? h("span", null, icon) : icon);
-  const p = h("p", null, prompt);
+  const p = h("p");
+  if (typeof prompt === "string") p.append(prompt);
+  else p.append(...prompt);
   if (browseLabel) {
     const browse = button("dz-browse", browseLabel);
     if (browseButtonId) browse.id = browseButtonId;
@@ -295,9 +308,13 @@ export function buildDropzone({
   }
   inner.append(iconWrap, p);
   if (hint) inner.append(h("p", "dz-hint", hint));
-  const reject = h("p", "dz-reject");
-  reject.hidden = true;
-  inner.append(reject);
+  if (reject) {
+    const rejectLine = h("p", "dz-reject");
+    if (rejectId) rejectLine.id = rejectId;
+    rejectLine.hidden = true;
+    inner.append(rejectLine);
+  }
   zone.append(inner);
+  if (input) zone.append(input);
   return zone;
 }

@@ -1,8 +1,24 @@
-/* The theme palette clip-extractor and bbqs-uploader share (encoding-helper keeps its own darker
-   dark palette and overrides these after importing). Light by default, dark via the OS preference
-   or the header toggle, which sets data-theme on <html> to override that preference.
+/* The theme palette clip-extractor, bbqs-uploader and the web-app template share. encoding-helper
+   keeps its own darker dark palette and does not import this file: shell.css reads only tokens its
+   own palette defines. Light by default, dark via the OS preference or the header toggle, which sets
+   data-theme on <html> to override that preference.
 
-   The two dark blocks must stay identical; update both together. */
+   Where the apps' palettes drifted, the shared value is the one most of them use (ties go to the
+   web-app template, so a freshly generated app needs no overrides); ADOPTION.md lists the few
+   values an app redeclares after importing.
+
+   The two dark blocks must stay identical; update both together.
+
+   Layout knobs. These are not declared here: each rule that reads one carries its default as the
+   var() fallback, so a stylesheet that skips this file still gets it. An app sets any of them on
+   its own :root to take a different value.
+     --page-max-width        main's width cap                        860px
+     --page-padding          main's padding                          2rem 1rem 5rem
+     --code-font             <code>'s font-family                    monospace (the browser's own)
+     --site-title-size       the header's <h1>                       1.7rem
+     --button-primary-disabled   a disabled .primary button's fill   var(--muted)
+     --footer-bar-padding    the fixed footer bar's padding          0 0.5rem 0.15rem 0.35rem
+     --footer-brand-height   an uncaptioned footer brand mark        5rem */
 :root {
   --bg: #f6f7fb;
   --card: #ffffff;
@@ -38,6 +54,7 @@
      at a glance. Cyan rather than teal/green so it is not mistaken for --ok. */
   --scan: #0e7490;
   --scan-soft: #ecfeff;
+  /* The account popover's drop shadow, the same in both themes. */
   --shadow: rgb(0 0 0 / 0.15);
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -57,14 +74,13 @@
     --ok: #4ade80;
     --ok-soft: #16321f;
     --warn: #fbbf24;
-    --warn-soft: #3a2f14;
+    --warn-soft: #3a2d12;
     --restricted: #fb923c;
     --restricted-soft: #3a2417;
     --err: #f87171;
-    --err-soft: #3a1d1d;
+    --err-soft: #3d1a1a;
     --scan: #22d3ee;
     --scan-soft: #083344;
-    --shadow: rgb(0 0 0 / 0.35);
   }
 }
 
@@ -81,12 +97,11 @@
   --ok: #4ade80;
   --ok-soft: #16321f;
   --warn: #fbbf24;
-  --warn-soft: #3a2f14;
+  --warn-soft: #3a2d12;
   --restricted: #fb923c;
   --restricted-soft: #3a2417;
   --err: #f87171;
-  --err-soft: #3a1d1d;
+  --err-soft: #3d1a1a;
   --scan: #22d3ee;
   --scan-soft: #083344;
-  --shadow: rgb(0 0 0 / 0.35);
 }

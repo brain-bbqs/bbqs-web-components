@@ -15,6 +15,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("createThemeStore", () => {
@@ -24,6 +25,27 @@ describe("createThemeStore", () => {
     store.save("dark");
     expect(localStorage.getItem(KEY)).toBe("dark");
     expect(store.load()).toBe("dark");
+  });
+
+  it("warns the way the apps do when the browser refuses the write", () => {
+    const refusal = new Error("QuotaExceededError");
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw refusal;
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    createThemeStore(KEY).save("dark");
+    expect(warn).toHaveBeenCalledWith("Could not save theme preference:", refusal);
+  });
+
+  it("hands a refused write to the app's own handler instead", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const onError = vi.fn();
+    createThemeStore(KEY, onError).save("light");
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(warn).not.toHaveBeenCalled();
   });
 });
 
@@ -82,5 +104,17 @@ describe("initThemeToggle", () => {
     toggle.toggle();
     expect(root.dataset.theme).toBe("dark");
     expect(localStorage.getItem("theme")).toBe("dark");
+  });
+
+  it("passes onError to the store it makes from storageKey", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("denied");
+    });
+    const onError = vi.fn();
+    const btn = document.createElement("button");
+    initThemeToggle(btn, { storageKey: KEY, onError });
+    btn.click();
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(onError).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bindDropzone } from "../../src/dropzone.js";
+import { bindDropzone, showDropzoneReject } from "../../src/dropzone.js";
 
 function dragEvent(type: string, dataTransfer?: unknown): Event {
   const e = new Event(type, { bubbles: true, cancelable: true });
@@ -87,5 +87,67 @@ describe("bindDropzone", () => {
     expect(zone.classList.contains("dragover")).toBe(false);
     zone.click();
     expect(inputClick).not.toHaveBeenCalled();
+  });
+});
+
+describe("bindDropzone onPick", () => {
+  function pick(input: HTMLInputElement, names: string[]): void {
+    const files = names.map((n) => new File(["x"], n));
+    Object.defineProperty(input, "files", {
+      value: Object.assign(files, { item: (i: number) => files[i] }),
+      configurable: true,
+    });
+    input.dispatchEvent(new Event("change"));
+  }
+
+  it("hands a pick's files to the app, then clears the input so the same pick fires again", () => {
+    const { zone, input, onDrop } = setup();
+    const onPick = vi.fn((files: FileList) => files[0].name);
+    const value = vi.spyOn(input, "value", "set");
+    bindDropzone(zone, { onDrop, input, onPick, guardWindow: false });
+    pick(input, ["clip.mp4"]);
+    expect(onPick).toHaveReturnedWith("clip.mp4");
+    expect(value).toHaveBeenCalledWith("");
+  });
+
+  it("skips an empty pick but still clears the input", () => {
+    const { zone, input, onDrop } = setup();
+    const onPick = vi.fn();
+    const value = vi.spyOn(input, "value", "set");
+    bindDropzone(zone, { onDrop, input, onPick, guardWindow: false });
+    pick(input, []);
+    expect(onPick).not.toHaveBeenCalled();
+    expect(value).toHaveBeenCalledWith("");
+  });
+
+  it("leaves the input's change event alone without onPick, and unbinds it on dispose", () => {
+    const { zone, input, onDrop } = setup();
+    const value = vi.spyOn(input, "value", "set");
+    bindDropzone(zone, { onDrop, input, guardWindow: false });
+    pick(input, ["a.mp4"]);
+    expect(value).not.toHaveBeenCalled();
+    const onPick = vi.fn();
+    bindDropzone(zone, { onDrop, input, onPick, guardWindow: false }).dispose();
+    pick(input, ["a.mp4"]);
+    expect(onPick).not.toHaveBeenCalled();
+  });
+});
+
+describe("showDropzoneReject", () => {
+  it("shows the message with each blank line as a <br><br> gap, parsing none of it as markup", () => {
+    const el = document.createElement("p");
+    el.hidden = true;
+    el.textContent = "an older message";
+    showDropzoneReject(el, "That wasn't a file.\n\nDrop a <b>single</b> file instead.");
+    expect(el.hidden).toBe(false);
+    expect(el.querySelectorAll("br")).toHaveLength(2);
+    expect(el.querySelector("b")).toBe(null);
+    expect(el.textContent).toBe("That wasn't a file.Drop a <b>single</b> file instead.");
+  });
+
+  it("shows a one-paragraph message without breaks", () => {
+    const el = document.createElement("p");
+    showDropzoneReject(el, "That folder contains no uploadable files.");
+    expect(el.childNodes).toHaveLength(1);
   });
 });

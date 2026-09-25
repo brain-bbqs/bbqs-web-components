@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { bindAccountMenu, renderAuthState, renderIdentity } from "../../src/account.js";
+import { bindAccountMenu, refreshIdentity, renderAuthState, renderIdentity } from "../../src/account.js";
 import { buildAccountMenu } from "../../src/shell.js";
 
 function menu() {
@@ -56,6 +56,30 @@ describe("renderIdentity", () => {
     els.oauthUsername.textContent = "previous";
     renderIdentity(els, null);
     expect(els.oauthUsername.textContent).toBe("previous");
+  });
+});
+
+describe("refreshIdentity", () => {
+  it("fills the header from the looked-up user and hands the user back", async () => {
+    const els = menu();
+    const user = { username: "jdoe", name: "Jane Doe" };
+    expect(await refreshIdentity(els, () => Promise.resolve(user))).toBe(user);
+    expect(els.oauthUsername.textContent).toBe("jdoe");
+    expect(els.oauthAvatar.textContent).toBe("JD");
+  });
+
+  it("resolves to null and leaves the header as it is when nobody is signed in", async () => {
+    const els = menu();
+    els.oauthUsername.textContent = "previous";
+    expect(await refreshIdentity(els, () => Promise.resolve(null))).toBe(null);
+    expect(els.oauthUsername.textContent).toBe("previous");
+  });
+
+  it("swallows a failed lookup, leaving the header for the next refresh to retry", async () => {
+    const els = menu();
+    els.oauthAvatar.textContent = "AB";
+    expect(await refreshIdentity(els, () => Promise.reject(new Error("offline")))).toBe(null);
+    expect(els.oauthAvatar.textContent).toBe("AB");
   });
 });
 

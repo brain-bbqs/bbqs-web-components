@@ -8,9 +8,17 @@ import { createChoiceStore, type ChoiceStore } from "@brain-bbqs/utils";
 export const THEMES = ["light", "dark"] as const;
 export type Theme = (typeof THEMES)[number];
 
-/** The stored override under `key` (e.g. "bbqs-uploader.theme"), or null while the OS decides. */
-export function createThemeStore(key: string): ChoiceStore<Theme> {
-  return createChoiceStore(key, THEMES);
+/** The warning all four apps give when the browser refuses to store the theme. */
+function warnThemeNotSaved(e: unknown): void {
+  console.warn("Could not save theme preference:", e);
+}
+
+/**
+ * The stored override under `key` (e.g. "bbqs-uploader.theme"), or null while the OS decides.
+ * `onError` hears about a write the browser refused; by default it warns the way the apps do.
+ */
+export function createThemeStore(key: string, onError: (e: unknown) => void = warnThemeNotSaved): ChoiceStore<Theme> {
+  return createChoiceStore(key, THEMES, onError);
 }
 
 /** The theme in effect: the explicit override on <html> if any, else the OS preference. */
@@ -34,6 +42,9 @@ export interface ThemeToggleOptions {
   /** The localStorage key, or a store already made with {@link createThemeStore}. */
   storageKey?: string;
   store?: ChoiceStore<Theme>;
+  /** Hears about a refused write when the store is made from `storageKey` (default: the apps' own
+   * "Could not save theme preference:" warning). */
+  onError?: (e: unknown) => void;
   root?: HTMLElement;
 }
 
@@ -46,7 +57,7 @@ export interface ThemeToggle {
 
 /** Wires the header's theme button: each click flips and persists the theme. */
 export function initThemeToggle(toggleButton: HTMLElement, options: ThemeToggleOptions = {}): ThemeToggle {
-  const store = options.store ?? createThemeStore(options.storageKey ?? "theme");
+  const store = options.store ?? createThemeStore(options.storageKey ?? "theme", options.onError);
   const root = options.root ?? document.documentElement;
   const controls: ThemeToggle = {
     store,
