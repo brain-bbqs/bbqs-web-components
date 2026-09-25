@@ -1,5 +1,11 @@
 # @brain-bbqs/ember-client
 
+## 0.2.0
+
+### Minor Changes
+
+- fd45b70: `createEtag({ emptyFile, tooLarge, fileChanged })` returns the hashing functions with an app's own error wording, plus `readChunks`, the chunked reader they share, for an app's own digest; the top-level `planParts`, `hashPart`, `computeDandiEtag` and `computeMd5` are unchanged. `OAuthClient`'s members are typed as function properties so an app can destructure them.
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @brain-bbqs/test-utils
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [fd45b70]
+  - @brain-bbqs/ember-client@0.2.0
+
 ## 0.2.0
 
 ### Minor Changes
