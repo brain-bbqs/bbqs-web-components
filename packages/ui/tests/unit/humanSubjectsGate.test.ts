@@ -68,6 +68,29 @@ describe("createHumanSubjectsGate", () => {
     expect(gate.state).toBe("unconfirmed");
   });
 
+  it("keeps the inner blocks following the confirmation while the banner is hidden, as the apps did", () => {
+    const { gate, els } = gateFromBanner();
+    gate.render("000123", true);
+    gate.confirm("000123");
+    expect(gate.render("000123", false)).toBe("hidden");
+    expect(els.banner.hidden).toBe(true);
+    expect(els.unconfirmed.hidden).toBe(true);
+    expect(els.confirmed.hidden).toBe(false);
+    expect(gate.render("000456", false)).toBe("hidden");
+    expect(els.unconfirmed.hidden).toBe(false);
+    expect(els.confirmed.hidden).toBe(true);
+  });
+
+  it("confirms nothing when clicked with no dataset picked, and only redraws", () => {
+    const { gate, els, onChange } = gateFromBanner();
+    gate.render("", false);
+    onChange.mockClear();
+    els.confirmBtn.click();
+    expect(onChange).toHaveBeenCalledWith("hidden");
+    expect(gate.isBlocking("")).toBe(false);
+    expect(gate.render("", true)).toBe("unconfirmed");
+  });
+
   it("works without an onChange listener", () => {
     const banner = buildHumanSubjectsBanner({
       ids: { banner: "b", unconfirmed: "u", confirmBtn: "c", confirmed: "d" },

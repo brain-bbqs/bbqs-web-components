@@ -50,10 +50,13 @@
    encoding-helper's `fileLoading.ts` URL-loading path.
 
 6. **One CSS contract.** The shared stylesheet selects on classes only and the apps own ids, so an
-   app can rename an element without touching the package. Two class names had to be added on
-   adoption (`oauth-signin-btn`, `footer-brand-link`); anything else the shared CSS needs from markup
-   should be added the same way, with the `html/` reference fragment and the builder updated together
-   (the ui tests assert the two agree).
+   app can rename an element without touching the package. Adoption adds a few class names where an
+   app had used an id or its own name (`oauth-signin-btn`, `header-logo-link`, `header-actions`,
+   `dropzone`, the `footer-brand-*` set; the ui README lists them); anything else the shared CSS
+   needs from markup should be added the same way, with the `html/` reference fragment and the
+   builder updated together (the ui tests assert the two agree). Where the apps' values
+   legitimately differ, the rule reads a knob (a custom property with the shared default as its
+   fallback) rather than growing an app-specific class.
 
 7. **Storybook and Chromatic per package, not per app.** The ui package's stories are the visual
    contract for the shell; the apps' Chromatic runs then only need to cover what is theirs. Wire the

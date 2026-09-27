@@ -12,7 +12,7 @@
 
 .site-header h1 {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: var(--site-title-size, 1.7rem);
   text-align: center;
 }
 
@@ -29,6 +29,14 @@
   width: auto;
 }
 
+/* The link a .header-logo sits in, when the logo is a link (bbqs-uploader, the web-app template):
+   the link is then the grid item, and line-height 0 keeps it from growing a text line's worth of
+   space under the image. */
+.header-logo-link {
+  justify-self: start;
+  line-height: 0;
+}
+
 /* The middle column of the header grid, capped so a long subtitle wraps instead of squeezing the
    logo and the header actions flanking it. */
 .site-title {
@@ -37,9 +45,24 @@
   text-align: center;
 }
 
+/* The one-line description of the app. On its own line under the header it is a centered row of
+   spans; inside .site-title, under the title in the header's middle column, it is a smaller line. */
 .site-subtitle {
-  margin: 0.25rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0.75rem 0 0;
   color: var(--muted);
+  font-size: 1rem;
+  text-align: center;
+}
+.site-title .site-subtitle {
+  display: block;
+  align-items: normal;
+  justify-content: normal;
+  gap: normal;
+  margin: 0.25rem 0 0;
   font-size: 0.9rem;
   line-height: 1.35;
 }
@@ -53,12 +76,13 @@
 
 /* On a phone the three columns cannot hold the logo, a wrapping title block and the sign-in button
    side by side, so the title block drops to a full-width second row under the other two. */
-@media (max-width: 640px) {
+@media (max-width: 600px) {
   .site-header {
     grid-template-columns: auto 1fr;
   }
   .brand-logo,
-  .header-logo {
+  .header-logo,
+  .header-logo-link {
     grid-column: 1;
     grid-row: 1;
   }
@@ -140,18 +164,20 @@
 }
 
 /* EMBER sign-in: the red sign-in button is swapped for an avatar whose hover/focus popover holds
-   the username and the sign-out action. */
-.oauth-signin-btn {
+   the username and the sign-out action. The button carries `primary` too, and keying on both
+   classes is what lets the red outrank `button.primary` (and an app's own
+   `button.primary:hover:not(:disabled)`), as the apps' old id selectors did. */
+.oauth-signin-btn.primary {
   background: var(--ember-red);
   border-color: var(--ember-red);
   color: #fff;
 }
-.oauth-signin-btn:hover:not(:disabled) {
+.oauth-signin-btn.primary:hover:not(:disabled) {
   background: var(--ember-red-hover);
   border-color: var(--ember-red-hover);
   filter: none;
 }
-.oauth-signin-btn:focus-visible {
+.oauth-signin-btn.primary:focus-visible {
   outline-color: var(--ember-red);
 }
 /* Set on <html> by the pre-paint script when stored OAuth tokens exist, so a refresh while already
@@ -258,7 +284,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0 0.5rem 0.15rem 0.5rem;
+  padding: var(--footer-bar-padding, 0 0.5rem 0.15rem 0.35rem);
   /* The bar spans the full viewport width but is mostly empty middle; without this, that empty
      stretch swallows clicks aimed at page content behind it. Pointer events are re-enabled on the
      bar's real contents below. */
@@ -331,18 +357,20 @@
   opacity: 0.312;
   text-decoration: none;
 }
+/* 5rem for a lone mark (bbqs-uploader, the template); an app with a captioned mark beside it sets
+   --footer-brand-height to the pair's height (clip-extractor 4rem, encoding-helper 60px). */
 .footer-brand-logo {
   display: block;
-  height: 4rem;
+  height: var(--footer-brand-height, 5rem);
   width: auto;
 }
-/* Mark plus name, stacked, sized so the pair totals the height of the plain marks beside it. */
+/* Mark plus name, stacked, sized so the pair totals the 60px of a plain mark beside it. */
 .footer-brand-link.captioned .footer-brand-logo {
   height: 2.75rem;
 }
 .footer-brand-name {
   color: var(--text);
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;

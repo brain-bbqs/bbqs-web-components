@@ -45,6 +45,25 @@ export function renderIdentity(
   els.oauthAvatar.textContent = initialsFrom(user.name ?? "");
 }
 
+/**
+ * Asks `loadUser` who is signed in (typically `() => fetchArchiveUser(cfg)` from
+ * @brain-bbqs/ember-client), fills the avatar and username, and returns the user. A failed lookup
+ * resolves to null and leaves the header as it is, since the next refresh retries; this is the
+ * `renderIdentity` both upload apps kept in `ui/connection.ts`.
+ */
+export async function refreshIdentity(
+  els: Pick<AccountElements, "oauthAvatar" | "oauthUsername">,
+  loadUser: () => Promise<AccountUser | null>,
+): Promise<AccountUser | null> {
+  try {
+    const user = await loadUser();
+    renderIdentity(els, user);
+    return user;
+  } catch {
+    return null;
+  }
+}
+
 export interface AccountMenuHandlers {
   onSignIn: () => void;
   onSignOut: () => void;

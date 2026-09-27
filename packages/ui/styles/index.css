@@ -1,5 +1,7 @@
-/* Everything, in cascade order. An app that lays out <body> itself imports the three it wants:
-   @import "@brain-bbqs/ui/styles/tokens.css"; shell.css; components.css. */
+/* Everything, in cascade order. An app that needs only part of it imports those files instead:
+   encoding-helper, which lays out <body> and draws its controls its own way, imports shell.css
+   alone; the web-app template imports tokens, base, shell, controls, dataset-picker and
+   human-subjects, and keeps its own dropzone. */
 @import "./tokens.css";
 @import "./base.css";
 @import "./shell.css";
