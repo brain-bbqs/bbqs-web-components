@@ -134,6 +134,11 @@ What the tables do not show:
   overrides. Where an app is the odd one out it keeps or redeclares the listed rules. Only two
   undo a shared rule: bbqs-uploader's phone header, which never restacked, and clip-extractor's
   Talmo Lab lockup, which fades its mark and its name separately.
+- **The app's tests follow the class renames.** Specs that select the footer marks by the old
+  `.con-brand-link` or `.talmo-brand-*` classes (encoding-helper's and the template's
+  `tests/integration/smoke.spec.ts`, for example) move to `.footer-brand-link` and its
+  `.footer-brand-logo`/`.footer-brand-name` children in the same pull request; grep `tests/`
+  and `stories/` for every class the markup changes.
 - **Nothing rendered changes.** The Chromatic baselines should come out the same on both pull
   requests; a difference is a missed option in the package, to be fixed there first.
 
