@@ -1,6 +1,6 @@
 {
   "name": "@brain-bbqs/test-utils",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Test helpers shared by the BBQS companion web apps: Playwright viewport and layout checks, sign-in and archive stubs, the Chromatic per-viewport pattern, and Vitest fixtures for index.html, fetch and storage.",
   "license": "MIT",
   "type": "module",
