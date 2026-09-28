@@ -297,6 +297,11 @@ Each recipe below was carried out on a copy of the app's `main` against this pac
 
 What the recipes do not show:
 
+- **The dialog is named by its heading.** The fragment carries `aria-labelledby="whats-new-modal-title"`
+  on the `<dialog>` and that id on its `<h2>`, so a screen reader announces "What's New" when it
+  opens. bbqs-uploader and the template add both attributes to the markup they already have; it
+  changes nothing on screen, and `expectIdContract` counts the heading's id as registered by the
+  reference.
 - **The fragment goes in two places.** `html/whats-new.html` holds the link's `.footer-row`,
   which goes first in `.footer-left` (above "Report a bug"), and the `<dialog>`, which goes after
   the footer bar's closing `</div>`. The ids are the uploader's and the template's

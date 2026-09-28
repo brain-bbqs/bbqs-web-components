@@ -256,9 +256,17 @@ describe("buildWhatsNew", () => {
     expect(dialog.id).toBe("whatsNewModal");
     expect(dialog.querySelector("h2")?.textContent).toBe("Recent changes");
     expect(Array.from(dialog.querySelectorAll("[id]"), (el) => el.id)).toEqual([
+      "whatsNewModal-title",
       "whatsNewClose",
       "whatsNewContent",
       "whatsNewMore",
     ]);
+  });
+
+  it("names the dialog by its heading", () => {
+    const { dialog } = buildWhatsNew({ title: "Recent changes" });
+    const labelId = dialog.getAttribute("aria-labelledby");
+    expect(labelId).toBe("whats-new-modal-title");
+    expect(dialog.querySelector(`#${labelId}`)?.textContent).toBe("Recent changes");
   });
 });

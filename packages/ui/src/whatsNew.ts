@@ -160,7 +160,11 @@ export function buildWhatsNew({
   const close = button("whats-new-close", "×");
   close.id = id.close;
   close.setAttribute("aria-label", "Close");
-  header.append(h("h2", null, title), close);
+  // Names the dialog for assistive tech; the id derives from the dialog's so custom ids stay unique.
+  const heading = h("h2", null, title);
+  heading.id = `${id.dialog}-title`;
+  dialog.setAttribute("aria-labelledby", heading.id);
+  header.append(heading, close);
   const content = h("div", "whats-new-content");
   content.id = id.content;
   const showMore = button("whats-new-show-more", "Show more");
