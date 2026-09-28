@@ -1,0 +1,145 @@
+/* The "What's New" footer link and the modal it opens, which renders the app's CHANGELOG.md. Reads
+   only --card, --text, --muted, --border, --accent and --accent-soft, which every app's palette
+   defines (encoding-helper's own included), and selects on classes only.
+
+   Spelled out in full rather than leaning on base.css and controls.css, so it looks the same in an
+   app that imports neither (encoding-helper): the button resets, the focus rings, the hidden
+   "Show more" and the code spans repeat what those files give the other apps, and so change
+   nothing there. The two hover rules keep an app's own generic `button:hover` tint
+   (clip-extractor's) off the link and the close button, which the other apps never tint. */
+
+/* A button that reads as one of the footer's links. Its own class rather than .footer-button-link,
+   which bbqs-uploader's "Clear checksum cache" button also carries this one to avoid: that button
+   briefly disables itself, and .footer-button-link:disabled would grey it out meanwhile. */
+.whats-new-link {
+  font: inherit;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--accent);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.whats-new-link:hover:not(:disabled) {
+  background: none;
+}
+
+.whats-new-modal {
+  width: min(560px, 90vw);
+  max-height: min(640px, 80vh);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0;
+  color: var(--text);
+  background: var(--card);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.2);
+}
+
+/* Flex column (only while open; display overrides the UA's display:none otherwise) so the header
+   and "Show more" footer stay put while the version list scrolls between them. */
+.whats-new-modal[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.whats-new-modal::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.whats-new-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.whats-new-modal-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.whats-new-close {
+  font: inherit;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+.whats-new-close:hover:not(:disabled) {
+  background: none;
+}
+
+.whats-new-content {
+  padding: 0.5rem 1.25rem 1.25rem;
+  overflow-y: auto;
+}
+
+.whats-new-show-more {
+  display: block;
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.6rem 1.25rem;
+  cursor: pointer;
+}
+.whats-new-show-more:hover {
+  background: var(--accent-soft);
+}
+/* The display above would otherwise outrank the browser's own [hidden] rule. */
+.whats-new-show-more[hidden] {
+  display: none;
+}
+
+.whats-new-link:focus-visible,
+.whats-new-close:focus-visible,
+.whats-new-show-more:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.whats-new-content .changelog-version + .changelog-version {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.whats-new-content h3 {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.whats-new-content h4 {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.85rem;
+}
+
+.whats-new-content ul {
+  margin: 0.25rem 0;
+  padding-left: 1.25rem;
+}
+
+.whats-new-content li {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+/* --whats-new-code-bg is a knob for a palette whose --accent-soft sits too close to its --card for
+   a code span to show (encoding-helper's dark one); unset, it is base.css's code background. */
+.whats-new-content code {
+  background: var(--whats-new-code-bg, var(--accent-soft));
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-family: var(--code-font, monospace);
+  font-size: 0.92em;
+}

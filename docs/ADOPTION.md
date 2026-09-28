@@ -265,12 +265,152 @@ Markup: `class="header-logo-link"` on the header's logo link; the CON link becom
 `saveStoredTheme` and `loadStoredTheme` (the settings test then pins `THEME_KEY` instead), `renderVersion(...)`, and in `ui/dropzone.ts` `showDropzoneReject` plus
 `bindDropzone(els.dropzone, { onDrop, input: els.fileInput, browseButton: els.browseFileBtn, onPick })`.
 
+## What's New and unit tests (step 5)
+
+Two things every app shares from here: the footer's "What's New" link with the modal that shows
+the app's `CHANGELOG.md` (`@brain-bbqs/ui`), and one way of unit-testing the page
+(`@brain-bbqs/test-utils/vitest`): `main.ts` booted against the real `index.html` by
+`createMainHarness`, one test file per boot scenario, and the `index.html`/`elements.ts` id
+contract checked both ways by `expectIdContract`.
+
+Each app takes both in one pull request, after the releases carrying them (ui 0.3.0 and
+test-utils 0.3.0): `npm install @brain-bbqs/ui@^0.3.0` and
+`npm install --save-dev @brain-bbqs/test-utils@^0.3.0`. bbqs-uploader and the web-app template
+already have What's New, so for them it is a move with no rendered change. **clip-extractor and
+encoding-helper gain What's New as a new feature**: their pull requests are user-facing, bump the
+minor version, and take an Enhancement entry such as "Added a What's New link to the footer
+listing recent changes."
+
+Each recipe below was carried out on a copy of the app's `main` against this package source.
+
+- **bbqs-uploader and the template** render identically, checked in Chromium against a build of
+  `main`: every computed style and box of the link and of every element in the modal, plus the
+  pixels, in light and dark, at 1600px and 390px. That held closed, open, expanded, with the link,
+  × and "Show more" hovered, and with keyboard focus. Their unit suites pass unchanged apart from
+  the edits listed (the uploader's 339 tests; the template's 27 plus its new contract test), above
+  their coverage floors. For all four apps' `CHANGELOG.md` files, the package's renderer builds,
+  node for node, the DOM the apps' `innerHTML` renderer did.
+- **clip-extractor and encoding-helper**, once the fragment is pasted in, draw the link and modal
+  with the same sizes as bbqs-uploader's. The only differences are ones each app already makes
+  everywhere: clip-extractor's `button { white-space: nowrap }` and `--mono` code font;
+  encoding-helper's own font stack, 1.6 line height and palette. Both suites still pass.
+
+What the recipes do not show:
+
+- **The fragment goes in two places.** `html/whats-new.html` holds the link's `.footer-row`,
+  which goes first in `.footer-left` (above "Report a bug"), and the `<dialog>`, which goes after
+  the footer bar's closing `</div>`. The ids are the uploader's and the template's
+  (`whats-new-button`, `whats-new-modal`, `whats-new-close`, `whats-new-content`,
+  `whats-new-show-more`); keep them, and `getWhatsNewElements()` needs no arguments.
+- **The changelog arrives with Vite's `?raw` import** (`import changelog from "../CHANGELOG.md?raw"`),
+  typed by the `vite/client` types `@brain-bbqs/config/tsconfig.base.json` already includes. No
+  plugin, no fetch, and Vitest serves it the same way to the boot tests.
+- **Register the modal in `elements.ts`** as `whatsNew: getWhatsNewElements()`, so its ids are
+  part of the contract, and call `initWhatsNew(els.whatsNew, { changelog })` beside
+  `renderVersion`.
+- **The deep link is `#changelog`**, not a `?test` injection: `/#changelog` opens the modal, for
+  a person, a Playwright spec or a Chromatic snapshot alike. Opening writes the fragment; every
+  close (×, backdrop, Escape) strips it again.
+- **The harness is created once per app**, in `tests/unit/helpers/mainHarness.ts`, as
+  `export const { bootMain } = createMainHarness({ importMain: () => import("../../../src/main") })`.
+  The import has to stay in the app's own code: written there, Vitest transforms it and the test
+  file's `vi.mock` calls apply to what it imports.
+- **Seeding and stubbing before `bootMain()` still work.** Creating the harness, not booting,
+  empties storage, so a test's own `localStorage.setItem` before `bootMain()` survives; and a
+  `fetch` the test stubbed itself is left in place (otherwise every call fails and is recorded, in
+  `(await bootMain()).fetch.calls`).
+- **Coverage settings do not change.** No threshold moves, clip-extractor keeps measuring
+  `src/lib/**` only, and encoding-helper keeps `src/main.ts` excluded.
+- **The two apps gaining the feature take the changelog rule the others have** in their
+  `CLAUDE.md`: never mention `?test` injections in `CHANGELOG.md`, since it now feeds the modal.
+
+### The web-app template
+
+First, since every new app is generated from it.
+
+| Delete                                                                                                                  | Replace with                                                                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/lib/changelog.ts`, `tests/unit/changelog.test.ts`                                                                  | the package's renderer; its cases moved into `packages/ui/tests/unit/changelog.test.ts`                                                                                  |
+| `main.ts`: from "The modal opens on the latest few versions" through `if (window.location.hash === CHANGELOG_HASH) ...` | `initWhatsNew(els.whatsNew, { changelog });`, with `initWhatsNew` from `@brain-bbqs/ui`; drop the `./lib/changelog` import                                               |
+| `elements.ts`: the five `whatsNew*` entries                                                                             | `whatsNew: getWhatsNewElements(),`                                                                                                                                       |
+| `style.css`: the What's New section (its banner comment, `.whats-new-link` through `.whats-new-content li`)             | `@import "@brain-bbqs/ui/styles/whats-new.css";` after the `human-subjects.css` import                                                                                   |
+| `tests/unit/helpers/mainHarness.ts`: `el`, `installMatchMedia`, `installDialogPolyfill`, the body of `bootMain`         | `createMainHarness` as above, `export { el } from "@brain-bbqs/test-utils/vitest"`, and `export const pickFile = (file: File): void => pickFiles("file-input", [file]);` |
+| `main.smoke.test.ts`: the `../../src/lib/changelog` import                                                              | `countChangelogVersions` from `@brain-bbqs/ui`                                                                                                                           |
+
+Add `tests/unit/elements.test.ts`:
+`expectIdContract({ html: readIndexHtml(), lookups: [getShell, getElements] })`. No page id is
+unregistered today. `index.html` does not change. In `SECURITY.md`, the What's New modal leaves
+the list of `innerHTML` uses: it now builds DOM nodes and never parses markup. In `AGENTS.md`,
+the Tests section can name `createMainHarness` and `expectIdContract` as what the harness and
+the contract test are built on.
+
+### bbqs-uploader
+
+| Delete                                                                                                                           | Replace with                                                                                                                                                                                             |
+| -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/lib/changelog.ts`, `tests/unit/changelog.test.ts`                                                                           | the package's renderer                                                                                                                                                                                   |
+| `main.ts`: from "The modal opens on the latest few versions" through `if (window.location.hash === CHANGELOG_HASH) ...`          | `initWhatsNew(els.whatsNew, { changelog });`; drop the `./lib/changelog` import                                                                                                                          |
+| `elements.ts`: the five `whatsNew*` entries                                                                                      | `whatsNew: getWhatsNewElements(),`                                                                                                                                                                       |
+| `style.css`: the "Kept rather than the shared .footer-button-link" comment and `.whats-new-link` through `.whats-new-content li` | nothing: `index.css` now imports `whats-new.css`. The Clear checksum cache button keeps its `whats-new-link` class                                                                                       |
+| `tests/unit/helpers/mainHarness.ts`: `bodyFromIndexHtml`, `el`, `installMatchMedia`, `installDialogPolyfill`, `bootMain`'s body  | `createMainHarness` as above, `el` re-exported, and `fakeFolderFile = (name, relativePath, size?) => fakeFile(name, { relativePath, size })`, `pickFolder = (files) => pickFiles("folder-input", files)` |
+| `main.smoke.test.ts`: its inline `bodyFromIndexHtml`, `el`, `fakeFolderFile`, `pickFolder` and hand-rolled boot                  | the helpers' imports and `await bootMain()`                                                                                                                                                              |
+| `main.signed-out-override.test.ts`: its hand-rolled boot                                                                         | `await bootMain({ url: "?test&signed_out&mock_upload=0", matchMedia: true })`                                                                                                                            |
+| `elements.test.ts`: the `readFileSync` of `index.html` and the "finds every element" case                                        | `expectIdContract({ html: readIndexHtml(), lookups: getElements })`; keep the `it.each` of missing ids                                                                                                   |
+
+The ten boot tests that seed `localStorage` and the ones stubbing `fetch` before `bootMain()` stay
+as they are. The contract finds two ids no lookup registers: `#speed-tips` (its rules key on the
+`.speed-tips` class) and `#config-card` (unused). Drop both from `index.html`, or pass
+`pageOnly: ["speed-tips", "config-card"]`. In `SECURITY.md`, the "What's New" modal leaves the
+list of `innerHTML` uses.
+
+### encoding-helper
+
+A new feature here. `main.ts` boots under the harness with no extra stubs.
+
+| Add                                 | What                                                                                                                                                                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`                        | `html/whats-new.html`: the row first in `.footer-left`, the `<dialog>` after the footer bar                                                                                                                                     |
+| `style.css`                         | `@import "@brain-bbqs/ui/styles/whats-new.css";` after the `shell.css` import, and `--whats-new-code-bg: var(--chip-bg);` in the knobs' `:root` (its dark `--accent-soft` is too close to its `--card` for a code span to show) |
+| `ui/elements.ts`, `main.ts`         | `whatsNew: getWhatsNewElements()`; `import changelog from "../CHANGELOG.md?raw"` and `initWhatsNew(els.whatsNew, { changelog })` after `renderVersion`                                                                          |
+| `tests/unit/helpers/mainHarness.ts` | `createMainHarness` as above                                                                                                                                                                                                    |
+| `tests/unit/main.smoke.test.ts`     | a boot test: the version stamp, and What's New opening from the link and at `#changelog`                                                                                                                                        |
+
+| Delete                                                                                                                       | Replace with                                                                                                                                                                                                                |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `elements.test.ts`: the first case's `mountHtml`/`getElements` walk                                                          | `expectIdContract({ html: readIndexHtml(), lookups: getElements })`, keeping its specific assertions                                                                                                                        |
+| `atomsTab.test.ts`: `FakeResizeObserver`                                                                                     | `const stub = installObserverStub("ResizeObserver")` in `beforeEach`, `stub.restore()` in `afterEach`; `FakeResizeObserver.instances` becomes `stub.instances`, whose `observed`, `disconnected` and `fire()` are as before |
+| `inspectToc.test.ts`: `StubIntersectionObserver` and its `observers` list                                                    | `installObserverStub("IntersectionObserver")` the same way; `observers[0]` becomes `stub.instances[0]`                                                                                                                      |
+| `dom.test.ts`, `analysisTab.test.ts`: `vi.stubGlobal("navigator", { ...navigator, clipboard })` and the `execCommand` define | `stubClipboard(writeText)` and `installExecCommand(execCommand)`, still handed the `vi.fn`s asserted on, each restored in `afterEach`                                                                                       |
+
+The contract registers all 28 ids with What's New in and finds none unregistered. The footer
+gains a row, so every page snapshot's footer changes in Chromatic, as a new feature should.
+
+### clip-extractor
+
+A new feature here too; `style.css` needs nothing, since `index.css` now imports `whats-new.css`.
+
+| Add                                 | What                                                                                                                                                                                                                              |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`                        | `html/whats-new.html`: the row first in `.footer-left`, the `<dialog>` after the footer bar                                                                                                                                       |
+| `ui/elements.ts`, `main.ts`         | `whatsNew: getWhatsNewElements()`; `import changelog from "../CHANGELOG.md?raw"`, and `getWhatsNewElements`/`initWhatsNew` in the `@brain-bbqs/ui` import, with `initWhatsNew(els.whatsNew, { changelog })` after `renderVersion` |
+| `tests/unit/elements.test.ts`       | its first id-contract test: `expectIdContract({ html: readIndexHtml(), lookups: [getElements, () => getShellElements()], pageOnly: ["selbarWrap", "speedGroup"] })`                                                               |
+| `tests/unit/helpers/mainHarness.ts` | `createMainHarness({ importMain, canvas: true, observers: ["ResizeObserver"] })`: `main.ts` needs a 2D context for the stage and a `ResizeObserver` for the blur tool to boot at all                                              |
+| `tests/unit/main.smoke.test.ts`     | a boot test, signed out: the version stamp, the empty stage, What's New; booting makes no fetch                                                                                                                                   |
+
+`#selbarWrap` and `#speedGroup` are styled by id in `style.css` and looked up by nothing, hence
+`pageOnly`; moving those two rules to classes would let the list go. `settings.test.ts`'s
+`vi.spyOn(Storage.prototype, "setItem")` can become `throwingStorage()`. As for encoding-helper,
+the footer's new row shows up in Chromatic.
+
 ## Order of operations
 
 1. `@brain-bbqs/config` first: it changes no runtime code, and the diff is the deleted `configs/`.
 2. `@brain-bbqs/utils` and `@brain-bbqs/test-utils`: pure functions and test scaffolding, one PR.
 3. `@brain-bbqs/ember-client`: the app's unit tests for the deleted modules move with them; what
    remains are the app's tests of its own `main.ts`.
-4. `@brain-bbqs/ui` last, in two pull requests per app (see its section above): 4a, the stylesheet
+4. `@brain-bbqs/ui`, in two pull requests per app (see its section above): 4a, the stylesheet
    import and the markup's new classes, where Chromatic shows any drift on its own; then 4b, the
    behaviour helpers, which change no pixel.
+5. What's New and the unit tests, one pull request per app once ui 0.3.0 and test-utils 0.3.0 are
+   published: the web-app template first, then bbqs-uploader (both with no rendered change), then
+   encoding-helper and clip-extractor, which gain What's New as a feature.

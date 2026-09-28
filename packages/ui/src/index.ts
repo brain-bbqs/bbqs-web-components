@@ -42,3 +42,28 @@ export {
   type HumanSubjectsBannerOptions,
   type DropzoneOptions,
 } from "./shell.js";
+export {
+  DEFAULT_LINK_PROTOCOLS,
+  isAllowedHref,
+  countChangelogVersions,
+  parseChangelog,
+  parseInline,
+  buildChangelogNodes,
+  buildChangelog,
+  renderChangelog,
+  type ChangelogInline,
+  type ChangelogBlock,
+  type ChangelogVersion,
+  type ChangelogOptions,
+} from "./changelog.js";
+export {
+  DEFAULT_WHATS_NEW_IDS,
+  getWhatsNewElements,
+  initWhatsNew,
+  buildWhatsNew,
+  type WhatsNewElementIds,
+  type WhatsNewElements,
+  type WhatsNewOptions,
+  type WhatsNew,
+  type WhatsNewMarkupOptions,
+} from "./whatsNew.js";

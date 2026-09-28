@@ -1,8 +1,9 @@
 /* Everything, in cascade order. An app that needs only part of it imports those files instead:
    encoding-helper, which lays out <body> and draws its controls its own way, imports shell.css
-   alone; the web-app template imports tokens, base, shell, controls, dataset-picker and
-   human-subjects, and keeps its own dropzone. */
+   and whats-new.css; the web-app template imports tokens, base, shell, controls, dataset-picker,
+   human-subjects and whats-new, and keeps its own dropzone. */
 @import "./tokens.css";
 @import "./base.css";
 @import "./shell.css";
 @import "./components.css";
+@import "./whats-new.css";

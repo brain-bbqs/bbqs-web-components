@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { jsonResponse, routeFetch, textResponse } from "../../src/vitest/fetch.js";
+import { jsonResponse, offlineFetch, routeFetch, textResponse } from "../../src/vitest/fetch.js";
 
 describe("jsonResponse / textResponse", () => {
   it("derives ok from the status and serves the body both ways", async () => {
@@ -54,5 +54,14 @@ describe("routeFetch", () => {
       /Failed to fetch \(no route for https:\/\/api.test\/unrouted\)/,
     );
     expect(fetchMock.calls).toHaveLength(1);
+  });
+});
+
+describe("offlineFetch", () => {
+  it("fails every call like a network error, recording each", async () => {
+    const fetchMock = offlineFetch();
+    await expect(fetchMock("https://api.test/a")).rejects.toThrow(TypeError);
+    await expect(fetchMock(new URL("https://api.test/b"))).rejects.toThrow("no route for https://api.test/b");
+    expect(fetchMock.calls.map((c) => c.url)).toEqual(["https://api.test/a", "https://api.test/b"]);
   });
 });
