@@ -7,6 +7,7 @@ import {
   buildPageFooter,
   buildThemeToggle,
 } from "../../src/shell.js";
+import { buildWhatsNew } from "../../src/whatsNew.js";
 import { fragment } from "./fragments.js";
 
 afterEach(() => {
@@ -218,5 +219,54 @@ describe("buildDropzone", () => {
     expect(dz.querySelector(".dz-icon")?.firstElementChild).toBe(logo);
     expect(dz.querySelector(".dz-browse")).toBe(null);
     expect(dz.querySelector(".dz-hint")).toBe(null);
+  });
+});
+
+describe("buildWhatsNew", () => {
+  it("matches the reference fragment, the link in its footer row", () => {
+    const { button, dialog } = buildWhatsNew();
+    const holder = document.createElement("div");
+    const row = document.createElement("div");
+    row.className = "footer-row";
+    row.append(button);
+    holder.append(row, dialog);
+    expect(skeleton(holder)).toEqual(skeleton(fragmentRoot("whats-new")));
+  });
+
+  it("slots into the footer as its first row", () => {
+    const { button } = buildWhatsNew();
+    const footer = buildPageFooter({ repoUrl: "https://r", leadingRows: [button] });
+    expect(footer.querySelector(".footer-left > .footer-row")?.firstElementChild).toBe(button);
+  });
+
+  it("takes the app's ids and wording", () => {
+    const { button, dialog } = buildWhatsNew({
+      ids: {
+        button: "whatsNewBtn",
+        dialog: "whatsNewModal",
+        close: "whatsNewClose",
+        content: "whatsNewContent",
+        showMore: "whatsNewMore",
+      },
+      label: "What's new",
+      title: "Recent changes",
+    });
+    expect(button.id).toBe("whatsNewBtn");
+    expect(button.textContent).toBe("What's new");
+    expect(dialog.id).toBe("whatsNewModal");
+    expect(dialog.querySelector("h2")?.textContent).toBe("Recent changes");
+    expect(Array.from(dialog.querySelectorAll("[id]"), (el) => el.id)).toEqual([
+      "whatsNewModal-title",
+      "whatsNewClose",
+      "whatsNewContent",
+      "whatsNewMore",
+    ]);
+  });
+
+  it("names the dialog by its heading", () => {
+    const { dialog } = buildWhatsNew({ title: "Recent changes" });
+    const labelId = dialog.getAttribute("aria-labelledby");
+    expect(labelId).toBe("whats-new-modal-title");
+    expect(dialog.querySelector(`#${labelId}`)?.textContent).toBe("Recent changes");
   });
 });

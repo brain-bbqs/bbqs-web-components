@@ -18,7 +18,8 @@
      --site-title-size       the header's <h1>                       1.7rem
      --button-primary-disabled   a disabled .primary button's fill   var(--muted)
      --footer-bar-padding    the fixed footer bar's padding          0 0.5rem 0.15rem 0.35rem
-     --footer-brand-height   an uncaptioned footer brand mark        5rem */
+     --footer-brand-height   an uncaptioned footer brand mark        5rem
+     --whats-new-code-bg     a code span's fill in What's New        var(--accent-soft) */
 :root {
   --bg: #f6f7fb;
   --card: #ffffff;

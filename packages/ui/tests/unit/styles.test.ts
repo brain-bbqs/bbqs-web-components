@@ -53,6 +53,27 @@ describe("components.css", () => {
   });
 });
 
+describe("index.css", () => {
+  it("imports every stylesheet, so importing it still means all of them", () => {
+    const imports = Array.from(sheet("index.css").matchAll(/@import "\.\/([\w-]+\.css)";/g), (m) => m[1]);
+    expect(imports).toEqual(["tokens.css", "base.css", "shell.css", "components.css", "whats-new.css"]);
+  });
+});
+
+describe("whats-new.css", () => {
+  it("reads only tokens encoding-helper's own palette defines, or carries a fallback", () => {
+    const encodingHelperPalette = ["--card", "--text", "--muted", "--border", "--accent", "--accent-soft"];
+    const bare = Array.from(withoutComments(sheet("whats-new.css")).matchAll(/var\((--[\w-]+)\)/g), (m) => m[1]);
+    expect(bare.filter((t) => !encodingHelperPalette.includes(t))).toEqual([]);
+    // The one knob, read with its fallback.
+    expect(withoutComments(sheet("whats-new.css"))).toContain("var(--whats-new-code-bg, var(--accent-soft))");
+  });
+
+  it("hides Show more itself, for an app without base.css's [hidden] rule", () => {
+    expect(block(withoutComments(sheet("whats-new.css")), ".whats-new-show-more[hidden]")).toEqual(["display: none"]);
+  });
+});
+
 describe("shell.css", () => {
   it("keys the sign-in button on both its classes, so the red outranks button.primary", () => {
     const css = withoutComments(sheet("shell.css"));

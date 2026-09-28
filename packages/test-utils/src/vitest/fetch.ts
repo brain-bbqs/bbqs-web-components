@@ -68,3 +68,11 @@ export function routeFetch(routes: FetchRoute[]): FetchRouter {
   router.callsTo = (fragment) => calls.filter((c) => c.url.includes(fragment));
   return router;
 }
+
+/**
+ * A fetch that fails every call like a network error, recording each one: what a boot test hands
+ * main.ts so nothing reaches the network. The same as a `routeFetch` with no routes.
+ */
+export function offlineFetch(): FetchRouter {
+  return routeFetch([]);
+}
