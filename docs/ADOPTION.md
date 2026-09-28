@@ -324,8 +324,9 @@ What the recipes do not show:
   empties storage, so a test's own `localStorage.setItem` before `bootMain()` survives; and a
   `fetch` the test stubbed itself is left in place (otherwise every call fails and is recorded, in
   `(await bootMain()).fetch.calls`).
-- **Coverage settings do not change.** No threshold moves, clip-extractor keeps measuring
-  `src/lib/**` only, and encoding-helper keeps `src/main.ts` excluded.
+- **Coverage thresholds do not move.** clip-extractor keeps measuring `src/lib/**` only;
+  encoding-helper drops its `src/main.ts` exclusion, since the harness now boots it (its boot
+  tests cover it fully).
 - **The two apps gaining the feature take the changelog rule the others have** in their
   `CLAUDE.md`: never mention `?test` injections in `CHANGELOG.md`, since it now feeds the modal.
 
@@ -364,8 +365,8 @@ the contract test are built on.
 
 The ten boot tests that seed `localStorage` and the ones stubbing `fetch` before `bootMain()` stay
 as they are. The contract finds two ids no lookup registers: `#speed-tips` (its rules key on the
-`.speed-tips` class) and `#config-card` (unused). Drop both from `index.html`, or pass
-`pageOnly: ["speed-tips", "config-card"]`. In `SECURITY.md`, the "What's New" modal leaves the
+`.speed-tips` class) and `#config-card` (unused). Drop both from `index.html` (and
+`#config-card` from `stories/DatasetCard.stories.ts`, which copies it). In `SECURITY.md`, the "What's New" modal leaves the
 list of `innerHTML` uses.
 
 ### encoding-helper
@@ -394,16 +395,16 @@ gains a row, so every page snapshot's footer changes in Chromatic, as a new feat
 
 A new feature here too; `style.css` needs nothing, since `index.css` now imports `whats-new.css`.
 
-| Add                                 | What                                                                                                                                                                                                                              |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index.html`                        | `html/whats-new.html`: the row first in `.footer-left`, the `<dialog>` after the footer bar                                                                                                                                       |
-| `ui/elements.ts`, `main.ts`         | `whatsNew: getWhatsNewElements()`; `import changelog from "../CHANGELOG.md?raw"`, and `getWhatsNewElements`/`initWhatsNew` in the `@brain-bbqs/ui` import, with `initWhatsNew(els.whatsNew, { changelog })` after `renderVersion` |
-| `tests/unit/elements.test.ts`       | its first id-contract test: `expectIdContract({ html: readIndexHtml(), lookups: [getElements, () => getShellElements()], pageOnly: ["selbarWrap", "speedGroup"] })`                                                               |
-| `tests/unit/helpers/mainHarness.ts` | `createMainHarness({ importMain, canvas: true, observers: ["ResizeObserver"] })`: `main.ts` needs a 2D context for the stage and a `ResizeObserver` for the blur tool to boot at all                                              |
-| `tests/unit/main.smoke.test.ts`     | a boot test, signed out: the version stamp, the empty stage, What's New; booting makes no fetch                                                                                                                                   |
+| Add                                 | What                                                                                                                                                                                                                                                                |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`                        | `html/whats-new.html`: the row first in `.footer-left`, the `<dialog>` after the footer bar                                                                                                                                                                         |
+| `ui/elements.ts`, `main.ts`         | `whatsNew: getWhatsNewElements()`; `import changelog from "../CHANGELOG.md?raw"`, and `initWhatsNew` in `main.ts`'s `@brain-bbqs/ui` import (`getWhatsNewElements` only in `elements.ts`'s), with `initWhatsNew(els.whatsNew, { changelog })` after `renderVersion` |
+| `tests/unit/elements.test.ts`       | its first id-contract test: `expectIdContract({ html: readIndexHtml(), lookups: [getElements, () => getShellElements()] })`                                                                                                                                         |
+| `tests/unit/helpers/mainHarness.ts` | `createMainHarness({ importMain, canvas: true, observers: ["ResizeObserver"] })`: `main.ts` needs a 2D context for the stage and a `ResizeObserver` for the blur tool to boot at all                                                                                |
+| `tests/unit/main.smoke.test.ts`     | a boot test, signed out: the version stamp, the empty stage, What's New; booting makes no fetch                                                                                                                                                                     |
 
-`#selbarWrap` and `#speedGroup` are styled by id in `style.css` and looked up by nothing, hence
-`pageOnly`; moving those two rules to classes would let the list go. `settings.test.ts`'s
+`#selbarWrap` and `#speedGroup` are styled by id in `style.css` and looked up by nothing, so
+`elements.ts` registers them; the contract then passes without a `pageOnly` list. `settings.test.ts`'s
 `vi.spyOn(Storage.prototype, "setItem")` can become `throwingStorage()`. As for encoding-helper,
 the footer's new row shows up in Chromatic.
 
