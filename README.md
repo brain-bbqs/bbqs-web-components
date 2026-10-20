@@ -14,7 +14,8 @@ kept in one npm-workspaces monorepo and published as independently versioned `@b
 
 Each package's README maps its exports back to the app files they replace. [docs/ADOPTION.md](docs/ADOPTION.md)
 walks each app through the switch; [docs/VENDORING.md](docs/VENDORING.md) explains how the packages are
-versioned and published, and the alternatives that were considered.
+versioned and published, and the alternatives that were considered. [docs/future-ideas.md](docs/future-ideas.md)
+collects suggestions for later, starting with the trade-offs of keeping the packages framework-free.
 
 ## Layout
 
