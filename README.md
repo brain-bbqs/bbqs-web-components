@@ -52,11 +52,26 @@ npm run lint             # the same @brain-bbqs/config/eslint rules the apps use
 npm test                 # every package's unit tests in one vitest run
 npm run test:coverage    # per package, enforcing each package's coverage floor (100% on the TS packages)
 npm run test:integration # @brain-bbqs/test-utils' Playwright specs (PLAYWRIGHT_CHROMIUM_PATH=/path/to/chrome reuses a local browser)
+npm run test:live        # the live checks of the hosts the packages hard-code (see below)
 npm run build            # dist/ for every package, in dependency order
 npm run storybook        # the ui package's stories
 ```
 
 `pre-commit` runs prettier, eslint, codespell and the REUSE check, as in the apps.
+
+## Daily live checks
+
+`npm run test:live` checks that the hosts `@brain-bbqs/ember-client` hard-codes still answer the
+deployed apps the way the client calls them: the archive's web UI and sign-in page, and, from each
+app's origin, an anonymous API call, the preflight a signed-in call sends, the sign-in token
+exchange and the admin-check service. It runs against the live services rather than the stubs the
+unit tests use, sending each cross-origin request with the app's origin, so a CORS allowlist that
+drops an app fails it too.
+
+The [Daily live checks](.github/workflows/daily_live_checks.yml) workflow runs it every day at 12:17
+UTC, and it can also be started by hand from the Actions tab. A failed scheduled or manual run emails
+the maintainer through Gmail, using the `MAIL_USERNAME` and `MAIL_PASSWORD` repository secrets.
+Ordinary pull requests do not run it; one that changes the checks themselves does.
 
 ## Releasing
 
