@@ -84,6 +84,6 @@
   },
   "devDependencies": {
     "@storybook/html-vite": "^10.5.3",
-    "storybook": "^10.5.3"
+    "storybook": "^10.6.3"
   }
 }

@@ -42,6 +42,6 @@
     "@brain-bbqs/config": "^0.2.1",
     "@brain-bbqs/test-utils": "^0.3.0",
     "@storybook/html-vite": "^10.5.3",
-    "storybook": "^10.5.3"
+    "storybook": "^10.6.3"
   }
 }
