@@ -68,10 +68,6 @@ exchange and the admin-check service. It runs against the live services rather t
 unit tests use, sending each cross-origin request with the app's origin, so a CORS allowlist that
 drops an app fails it too.
 
-The [Daily live checks](.github/workflows/daily_live_checks.yml) workflow runs it every day at 12:17
-UTC, and it can also be started by hand from the Actions tab. A failed scheduled or manual run emails
-the maintainer through Gmail, using the `MAIL_USERNAME` and `MAIL_PASSWORD` repository secrets.
-Ordinary pull requests do not run it; one that changes the checks themselves does.
 
 ## Releasing
 
