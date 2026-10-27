@@ -2,5 +2,6 @@
    piece differs (the web-app template's dropzone) imports the others individually instead. */
 @import "./controls.css";
 @import "./dropzone.css";
+@import "./segmented.css";
 @import "./dataset-picker.css";
 @import "./human-subjects.css";
