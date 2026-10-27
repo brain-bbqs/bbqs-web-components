@@ -68,7 +68,6 @@ exchange and the admin-check service. It runs against the live services rather t
 unit tests use, sending each cross-origin request with the app's origin, so a CORS allowlist that
 drops an app fails it too.
 
-
 ## Releasing
 
 Versions are managed with [Changesets](https://github.com/changesets/changesets). A pull request that
