@@ -1,5 +1,11 @@
 # @brain-bbqs/ui
 
+## 0.4.0
+
+### Minor Changes
+
+- 6916376: Added the segmented control clip-extractor and ember-rave-visualizer draw their source pickers with: `segmented.css` (in `components.css`), `buildSegmented` with the `html/segmented.html` fragment, and `bindSegmented`, `selectSegment`, `selectedSegment` and `segmentValue`.
+
 ## 0.3.0
 
 ### Minor Changes
