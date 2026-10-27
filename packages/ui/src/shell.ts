@@ -6,6 +6,7 @@
 import { button, h } from "./dom.js";
 import { moonIcon, signOutIcon, sunIcon } from "./icons.js";
 import { DEFAULT_SHELL_IDS, type ShellElementIds } from "./elements.js";
+import { selectSegment } from "./segmented.js";
 
 /** The header's light/dark toggle: an outlined circle holding the moon and the sun, of which the
  * stylesheet shows whichever the current theme is not. */
@@ -317,4 +318,62 @@ export function buildDropzone({
   zone.append(inner);
   if (input) zone.append(input);
   return zone;
+}
+
+export interface SegmentOption {
+  /** The value its data attribute holds, which bindSegmented hands to the app on a click. */
+  value: string;
+  label: string;
+  /** A mark before the label: an emoji, or an element such as the EMBER flame's `<img alt="">`. */
+  icon?: string | HTMLElement;
+  disabled?: boolean;
+  title?: string;
+}
+
+export interface SegmentedOptions {
+  id?: string;
+  /** The group's accessible name, e.g. "Video source". */
+  label: string;
+  options: SegmentOption[];
+  /** The data attribute each value sits in, as a dataset key: "value" (the default) writes
+   * `data-value`, clip-extractor's "src" writes `data-src`. */
+  dataKey?: string;
+  /** The value that starts active: the first option's by default, none for null. */
+  selected?: string | null;
+  /** The scaled-down variant. */
+  small?: boolean;
+  /** Stacks into full-width bars on a phone. */
+  stackable?: boolean;
+}
+
+/** The segmented control, its buttons marked by selectSegment. */
+export function buildSegmented({
+  id,
+  label,
+  options,
+  dataKey = "value",
+  selected = options[0]?.value ?? null,
+  small = false,
+  stackable = false,
+}: SegmentedOptions): HTMLDivElement {
+  const group = h("div", ["seg", small ? "small" : "", stackable ? "stackable" : ""].filter(Boolean).join(" "));
+  if (id) group.id = id;
+  group.setAttribute("role", "group");
+  group.setAttribute("aria-label", label);
+  for (const option of options) {
+    const segment = button();
+    segment.dataset[dataKey] = option.value;
+    if (option.icon) {
+      const mark = typeof option.icon === "string" ? h("span", null, option.icon) : option.icon;
+      mark.classList.add("seg-icon");
+      if (typeof option.icon === "string") mark.setAttribute("aria-hidden", "true");
+      segment.append(mark);
+    }
+    segment.append(option.label);
+    if (option.title) segment.title = option.title;
+    if (option.disabled) segment.disabled = true;
+    group.append(segment);
+  }
+  selectSegment(group, selected ?? undefined);
+  return group;
 }

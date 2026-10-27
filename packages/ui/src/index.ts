@@ -28,6 +28,7 @@ export {
   type HumanSubjectsState,
 } from "./humanSubjectsGate.js";
 export { bindDropzone, showDropzoneReject, type DropzoneHandlers, type DropzoneBinding } from "./dropzone.js";
+export { bindSegmented, selectSegment, selectedSegment, segmentValue, type SegmentedBinding } from "./segmented.js";
 export {
   buildThemeToggle,
   buildAccountMenu,
@@ -35,12 +36,15 @@ export {
   buildPageFooter,
   buildHumanSubjectsBanner,
   buildDropzone,
+  buildSegmented,
   type AccountMenuOptions,
   type BrandWatermarkOptions,
   type PageFooterOptions,
   type FooterBrand,
   type HumanSubjectsBannerOptions,
   type DropzoneOptions,
+  type SegmentOption,
+  type SegmentedOptions,
 } from "./shell.js";
 export {
   DEFAULT_LINK_PROTOCOLS,
