@@ -49,7 +49,13 @@ describe("every stylesheet", () => {
 describe("components.css", () => {
   it("imports every per-component stylesheet, so importing it still means all of them", () => {
     const imports = Array.from(sheet("components.css").matchAll(/@import "\.\/([\w-]+\.css)";/g), (m) => m[1]);
-    expect(imports).toEqual(["controls.css", "dropzone.css", "dataset-picker.css", "human-subjects.css"]);
+    expect(imports).toEqual([
+      "controls.css",
+      "dropzone.css",
+      "segmented.css",
+      "dataset-picker.css",
+      "human-subjects.css",
+    ]);
   });
 });
 

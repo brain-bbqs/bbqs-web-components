@@ -1,0 +1,85 @@
+/* The segmented control: a row of joined buttons with one of them active. clip-extractor draws its
+   source picker and its mode, speed, window and delivery switches with it, and
+   ember-rave-visualizer its table source picker. */
+
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.seg button {
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.9rem;
+  border: none;
+  border-radius: 0;
+  border-right: 1px solid var(--border);
+}
+.seg button:last-child {
+  border-right: none;
+}
+.seg button:hover:not(.active):not(:disabled) {
+  background: var(--accent-soft);
+}
+/* The `:hover` twin outranks an app's own `button:hover:not(:disabled)` tint, which ties with
+   `.seg button.active` on specificity and, coming later in the app's stylesheet, would win. */
+.seg button.active,
+.seg button.active:hover {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Scaled down beside a control that matters more (clip-extractor's speed and window switches
+   flanking the play button). */
+.seg.small button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A button that names its option with a mark as well as a label lays the two out as a row; the
+   mark is sized off the label so the two stay in proportion at any text size. `height` alone for
+   an image: the EMBER flame is taller than it is wide, and letting the width follow keeps it from
+   being squashed. */
+.seg button:has(> .seg-icon) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.seg-icon {
+  flex-shrink: 0;
+  height: 1em;
+  width: auto;
+  line-height: 1;
+}
+/* The flame is narrower than an emoji glyph of the same height, so it is set a little taller to
+   carry the same weight in the row. */
+img.seg-icon {
+  height: 1.15em;
+}
+
+/* A row of long labels (a source picker's three, close to 500px) hangs off a phone, so `.stackable`
+   turns it into full-width bars of the same control below 600px: the divider turns from a right
+   border into a bottom one, and the bars grow a little taller to suit a thumb. A set width rather
+   than a share of the parent, which usually shrink-wraps the control; capped for narrower still. */
+@media (max-width: 600px) {
+  .seg.stackable {
+    flex-direction: column;
+    width: 16rem;
+    max-width: 100%;
+  }
+  .seg.stackable button {
+    justify-content: center;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .seg.stackable button:last-child {
+    border-bottom: none;
+  }
+}

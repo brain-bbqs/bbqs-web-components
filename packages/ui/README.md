@@ -3,8 +3,8 @@
 The page shell the BBQS companion apps draw the same way: the theme palette and light/dark
 toggle, the header's EMBER account menu, the BBQS watermark and the footer bar with its version
 stamp and brand marks, the "What's New" modal that shows the app's `CHANGELOG.md`, the
-human-subjects gate, the dropzone, the dataset picker, and the typed element lookups that back
-them. Plain DOM and CSS; no framework.
+human-subjects gate, the dropzone, the segmented control, the dataset picker, and the typed
+element lookups that back them. Plain DOM and CSS; no framework.
 
 ```sh
 npm install @brain-bbqs/ui
@@ -26,9 +26,10 @@ npm install @brain-bbqs/ui
 | `tokens.css`         | the light and dark palette                                                      |
 | `base.css`           | box sizing, `[hidden]`, `body`, `main`, links, `<code>`, focus rings            |
 | `shell.css`          | header grid, watermark, theme toggle, account menu, footer bar and brand marks  |
-| `components.css`     | imports the four below                                                          |
+| `components.css`     | imports the five below                                                          |
 | `controls.css`       | cards, buttons, the dropdown, `.hint`, `.badge`, `.progress`                    |
 | `dropzone.css`       | the dashed drop target, its browse link, hint and reject line                   |
+| `segmented.css`      | the segmented control: `.small`, marks before labels, `.stackable` on a phone   |
 | `dataset-picker.css` | the "View on EMBER" pill, the single-dataset readout, the not-embargoed refusal |
 | `human-subjects.css` | the human-subjects compliance banner                                            |
 | `whats-new.css`      | the footer's "What's New" link and the changelog modal it opens                 |
@@ -65,6 +66,8 @@ The shared CSS keys on these; the `html/` fragments below already have them.
 - `.header-logo-link` on the link around a `.header-logo`, when the logo is a link.
 - `.header-actions` on the header's right-hand group.
 - `.dropzone` on the drop target.
+- `.seg` on a segmented control (plus `.small`, or `.stackable` to stack it below 600px), and
+  `.seg-icon` on a mark before a segment's label.
 - `.footer-brands` around the footer marks; `.footer-brand-link` (plus `.captioned` for a mark
   with a name under it), `.footer-brand-logo` (plus `.on-light`/`.on-dark` for a pair) and
   `.footer-brand-name`.
@@ -85,10 +88,15 @@ produces the identical structure at boot. The unit tests assert the two agree.
 | `html/page-footer.html`           | `buildPageFooter()`          |
 | `html/human-subjects-banner.html` | `buildHumanSubjectsBanner()` |
 | `html/dropzone.html`              | `buildDropzone()`            |
+| `html/segmented.html`             | `buildSegmented()`           |
 | `html/whats-new.html`             | `buildWhatsNew()`            |
 
 `buildDropzone` takes what each app's zone differs by: a `prompt` of text or nodes (a `<code>` in
 it), no `reject` line, the reject line's `rejectId`, and the file `input` placed inside the zone.
+`buildSegmented` takes the group's `label`, its `options` (each a `value` and `label`, with an
+optional emoji or element `icon`, `disabled` and `title`), the `dataKey` the values are written
+under (`data-value` by default, `"src"` for clip-extractor's `data-src`), the `selected` value
+(the first by default, none for `null`), and the `small` and `stackable` variants.
 
 ## Behaviour
 
@@ -124,6 +132,9 @@ user, or to null after a failed lookup, leaving the header for the next refresh.
 `bindDropzone` owns the dragover class, the click-to-browse plumbing, the file input's `change`
 (through `onPick`) and the window-level guard, leaving what a drop means to the app;
 `showDropzoneReject` writes a refusal into the reject line with blank lines as `<br><br>` gaps.
+`bindSegmented(group, onSelect)` selects a clicked segment and hands its value, the segment's first
+`data-*` attribute, to `onSelect`; `selectSegment` sets the selection from code (the active class
+and `aria-pressed` together), `selectedSegment` reads it back, and `dispose()` unbinds.
 `h`, `button`, `svgEl`, `escapeHtml` and `copyToClipboard` are encoding-helper's DOM helpers,
 unchanged.
 

@@ -5,6 +5,7 @@ import {
   buildDropzone,
   buildHumanSubjectsBanner,
   buildPageFooter,
+  buildSegmented,
   buildThemeToggle,
 } from "../../src/shell.js";
 import { buildWhatsNew } from "../../src/whatsNew.js";
@@ -268,5 +269,75 @@ describe("buildWhatsNew", () => {
     const labelId = dialog.getAttribute("aria-labelledby");
     expect(labelId).toBe("whats-new-modal-title");
     expect(dialog.querySelector(`#${labelId}`)?.textContent).toBe("Recent changes");
+  });
+});
+
+describe("buildSegmented", () => {
+  const flame = (): HTMLImageElement => {
+    const img = document.createElement("img");
+    img.src = "/src/assets/ember-mark.svg";
+    img.alt = "";
+    img.width = 12;
+    img.height = 15;
+    return img;
+  };
+
+  it("matches the reference fragment", () => {
+    const seg = buildSegmented({
+      id: "srcSeg",
+      label: "Video source",
+      dataKey: "src",
+      stackable: true,
+      options: [
+        { value: "local", label: "Load local file", icon: "📁" },
+        { value: "browse", label: "Browse EMBER", icon: flame() },
+        { value: "ember", label: "Stream from a URL", icon: "🔗" },
+      ],
+    });
+    const holder = document.createElement("div");
+    holder.append(seg);
+    expect(skeleton(holder)).toEqual(skeleton(fragmentRoot("segmented")));
+  });
+
+  it("writes plain segments to data-value, with the small variant and no id by default", () => {
+    const seg = buildSegmented({
+      label: "Playback speed",
+      small: true,
+      options: [
+        { value: "1", label: "1×" },
+        { value: "2", label: "2×" },
+      ],
+    });
+    expect(seg.className).toBe("seg small");
+    expect(seg.id).toBe("");
+    expect(Array.from(seg.querySelectorAll("button"), (b) => [b.dataset.value, b.textContent])).toEqual([
+      ["1", "1×"],
+      ["2", "2×"],
+    ]);
+    expect(seg.querySelector(".seg-icon")).toBeNull();
+  });
+
+  it("builds an empty group from no options", () => {
+    const seg = buildSegmented({ label: "Nothing yet", options: [] });
+    expect([seg.getAttribute("role"), seg.childElementCount]).toEqual(["group", 0]);
+  });
+
+  it.each([
+    ["the given value", "url", ["false", "false", "true"]],
+    ["none, for null", null, ["false", "false", "false"]],
+  ])("starts with %s active", (_, selected, pressed) => {
+    const seg = buildSegmented({
+      label: "Table source",
+      selected,
+      options: [
+        { value: "local", label: "Load local file" },
+        { value: "ember", label: "Browse EMBER", disabled: true, title: "Coming soon" },
+        { value: "url", label: "Load from a URL" },
+      ],
+    });
+    const segments = Array.from(seg.querySelectorAll("button"));
+    expect(segments.map((b) => b.getAttribute("aria-pressed"))).toEqual(pressed);
+    expect(segments.map((b) => b.disabled)).toEqual([false, true, false]);
+    expect(segments[1].title).toBe("Coming soon");
   });
 });

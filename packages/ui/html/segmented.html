@@ -1,0 +1,13 @@
+<!-- A segmented control whose segments carry marks: clip-extractor's source picker. Same markup
+     buildSegmented() produces. -->
+<div class="seg stackable" id="srcSeg" role="group" aria-label="Video source">
+  <button type="button" data-src="local" class="active" aria-pressed="true">
+    <span class="seg-icon" aria-hidden="true">📁</span>Load local file
+  </button>
+  <button type="button" data-src="browse" aria-pressed="false">
+    <img class="seg-icon" src="/src/assets/ember-mark.svg" alt="" width="12" height="15" />Browse EMBER
+  </button>
+  <button type="button" data-src="ember" aria-pressed="false">
+    <span class="seg-icon" aria-hidden="true">🔗</span>Stream from a URL
+  </button>
+</div>
