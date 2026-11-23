@@ -32,6 +32,7 @@ configs/
   tsconfig.build.json  project references that build every dist/ in dependency order
   eslint.config.js, prettier.config.js, vitest.config.ts   the root runs of each tool
 .changeset/            pending version bumps (see below)
+skills/                agent skills the apps install with APM (see below)
 ```
 
 The root configs live under `configs/`, as in the apps, and the npm scripts pass them with
@@ -42,6 +43,25 @@ Inside the repo, packages import each other by name and resolve to source (throu
 Vite aliases), so nothing needs building to typecheck, lint or test. `npm run build` emits each
 package's `dist/` from its `tsconfig.build.json`, typing cross-package imports from the sibling's
 `dist/` declarations the way an installed consumer will see them.
+
+## Agent skills
+
+The agent skills every app uses live under `skills/`, one [APM](https://github.com/microsoft/apm) package per skill, as in [con/skills](https://github.com/con/skills):
+
+| Skill                                                        | What it covers                                                                          |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [`frontend-security`](skills/frontend-security/SKILL.md)     | The XSS surface, client-side token storage and CodeQL "clear text storage" alerts       |
+| [`reuse-license-setup`](skills/reuse-license-setup/SKILL.md) | REUSE compliance: `REUSE.toml`, `LICENSES/`, the root `LICENSE` and the pre-commit hook |
+| [`visual-snapshots`](skills/visual-snapshots/SKILL.md)       | Deterministic Chromatic snapshots and the `?test` live injections that reach a state    |
+
+An app installs each one pinned to a reviewed commit, and commits only `apm.yml` and `apm.lock.yaml`, never the installed copies:
+
+```sh
+apm install brain-bbqs/bbqs-web-components/skills/frontend-security#<full-commit-SHA>
+```
+
+`apm install --frozen` then restores them on every clone, as `npm ci` does packages.
+Each skill's `apm.yml` carries its version: bump it when the skill's text changes (skills take no changeset).
 
 ## Working on it
 
