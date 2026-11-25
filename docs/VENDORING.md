@@ -59,8 +59,9 @@
    fallback) rather than growing an app-specific class.
 
 7. **Storybook and Chromatic per package, not per app.** The ui package's stories are the visual
-   contract for the shell; the apps' Chromatic runs then only need to cover what is theirs. Wire the
-   `CHROMATIC_STORYBOOK_PROJECT_TOKEN` secret for this repository to turn `chromatic.yml` on.
+   contract for the shell; the apps' Chromatic runs then only need to cover what is theirs.
+   `chromatic.yml` builds the stories without a token and `chromatic-publish.yml` uploads them with
+   the `CHROMATIC_STORYBOOK_PROJECT_TOKEN` secret, so a pull request from a fork gets them too.
 
 8. **Security guidance stays with the code that stores credentials.** The apps' `SECURITY.md`
    documents the clear-text-storage trade-off; `createArchiveSettingsStore` carries the same
